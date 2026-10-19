@@ -425,6 +425,17 @@ export default function AdminPanel() {
     }
   };
 
+  const handleDemoAdminLogin = async () => {
+    setAuthError("");
+    try {
+      const resp = await apiClient.demoLogin("admin.demo@bharat-culturemap.local");
+      setUser(resp.user);
+      await loadWorkspaceData(resp.user);
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to log in as Demo Super Admin.");
+    }
+  };
+
   const handleLogout = async () => {
     await apiClient.logout();
     setUser(null);
@@ -1352,6 +1363,21 @@ export default function AdminPanel() {
                 {needsBootstrap
                   ? "Bootstrap Super Admin & Enter"
                   : "Sign In to Admin Panel"}
+              </button>
+
+              <div className="relative my-4 flex items-center justify-center">
+                <span className="h-px w-full bg-white/10" />
+                <span className="absolute bg-[#171b29] px-3 text-[10px] font-bold uppercase tracking-wider text-white/40">
+                  Or Instant Demo Access
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDemoAdminLogin}
+                className="w-full rounded-full border border-[#ef9d45]/40 bg-[#ef9d45]/10 py-2.5 text-xs font-bold uppercase tracking-[.12em] text-[#efb167] hover:bg-[#ef9d45] hover:text-[#251922] transition"
+              >
+                ⚡ 1-Click Demo Super Admin Sign-In
               </button>
             </form>
           </div>
