@@ -27,6 +27,7 @@ import {
   ConsentGateError,
   evaluatePublicationGate,
 } from "./modules/consent-gate";
+import { handleImageUpload } from "./routes/uploads.routes";
 
 function sendJson(
   res: ServerResponse,
@@ -1179,6 +1180,99 @@ export function createApiHandler(
               "Staff authorization role required. Public account personas do not have administrative privileges.",
             code: "STAFF_ROLE_REQUIRED",
           });
+          return;
+        }
+
+        // =====================================================================
+        // ADMIN IMAGE UPLOAD
+        // =====================================================================
+        if (pathname === "/api/v1/admin/upload" && method === "POST") {
+          try {
+            const body = await readJsonBody(req);
+            const uploaded = await handleImageUpload(body, actor);
+            sendJson(res, 201, uploaded);
+          } catch (err: any) {
+            sendJson(res, 400, { error: err?.message || "Image upload failed." });
+          }
+          return;
+        }
+
+        // =====================================================================
+        // ADMIN DELETE ENDPOINTS
+        // =====================================================================
+        const adminDeleteRecordMatch = pathname.match(/^\/api\/v1\/admin\/records\/([^/]+)$/);
+        if (adminDeleteRecordMatch && method === "DELETE") {
+          const recId = decodeURIComponent(adminDeleteRecordMatch[1]);
+          const success = repo.deleteCulturalRecord(recId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: recId });
+          return;
+        }
+
+        const adminDeleteTradMatch = pathname.match(/^\/api\/v1\/admin\/traditions\/([^/]+)$/);
+        if (adminDeleteTradMatch && method === "DELETE") {
+          const tradId = decodeURIComponent(adminDeleteTradMatch[1]);
+          const success = repo.deleteTradition(tradId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: tradId });
+          return;
+        }
+
+        const adminDeleteEventMatch = pathname.match(/^\/api\/v1\/admin\/events\/([^/]+)$/);
+        if (adminDeleteEventMatch && method === "DELETE") {
+          const evtId = decodeURIComponent(adminDeleteEventMatch[1]);
+          const success = repo.deleteCulturalEvent(evtId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: evtId });
+          return;
+        }
+
+        const adminDeletePractMatch = pathname.match(/^\/api\/v1\/admin\/practitioners\/([^/]+)$/);
+        if (adminDeletePractMatch && method === "DELETE") {
+          const practId = decodeURIComponent(adminDeletePractMatch[1]);
+          const success = repo.deletePractitioner(practId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: practId });
+          return;
+        }
+
+        const adminDeleteProdMatch = pathname.match(/^\/api\/v1\/admin\/art-mart\/products\/([^/]+)$/);
+        if (adminDeleteProdMatch && method === "DELETE") {
+          const prodId = decodeURIComponent(adminDeleteProdMatch[1]);
+          const success = repo.deleteArtMartProduct(prodId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: prodId });
+          return;
+        }
+
+        const adminDeleteHerCraftMatch = pathname.match(/^\/api\/v1\/admin\/hercraft\/enterprises\/([^/]+)$/);
+        if (adminDeleteHerCraftMatch && method === "DELETE") {
+          const entId = decodeURIComponent(adminDeleteHerCraftMatch[1]);
+          const success = repo.deleteHerCraftEnterprise(entId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: entId });
+          return;
+        }
+
+        const adminDeleteMediaMatch = pathname.match(/^\/api\/v1\/admin\/media-assets\/([^/]+)$/);
+        if (adminDeleteMediaMatch && method === "DELETE") {
+          const medId = decodeURIComponent(adminDeleteMediaMatch[1]);
+          const success = repo.deleteMediaAsset(medId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: medId });
+          return;
+        }
+
+        const adminDeleteSrcMatch = pathname.match(/^\/api\/v1\/admin\/sources\/([^/]+)$/);
+        if (adminDeleteSrcMatch && method === "DELETE") {
+          const srcId = decodeURIComponent(adminDeleteSrcMatch[1]);
+          const success = repo.deleteSourceCitation(srcId, actor);
+          sendJson(res, success ? 200 : 404, { success, id: srcId });
+          return;
+        }
+
+        const adminDeleteUserMatch = pathname.match(/^\/api\/v1\/admin\/users\/([^/]+)$/);
+        if (adminDeleteUserMatch && method === "DELETE") {
+          const targetId = decodeURIComponent(adminDeleteUserMatch[1]);
+          try {
+            const success = repo.deleteUser(targetId, actor);
+            sendJson(res, success ? 200 : 404, { success, id: targetId });
+          } catch (err: any) {
+            sendJson(res, 400, { error: err?.message || "Cannot delete user." });
+          }
           return;
         }
 

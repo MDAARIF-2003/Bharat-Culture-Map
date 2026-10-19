@@ -535,6 +535,16 @@ export interface CultureMapRepository {
     patch: Partial<HerCraftOpportunity>,
     actor?: UserAccount | null
   ): HerCraftOpportunity;
+
+  deleteCulturalRecord(id: string, actor: UserAccount): boolean;
+  deleteTradition(idOrSlug: string, actor?: UserAccount | null): boolean;
+  deleteCulturalEvent(id: string, actor?: UserAccount | null): boolean;
+  deletePractitioner(idOrSlug: string, actor?: UserAccount | null): boolean;
+  deleteArtMartProduct(idOrSlug: string, actor?: UserAccount | null): boolean;
+  deleteHerCraftEnterprise(idOrSlug: string, actor?: UserAccount | null): boolean;
+  deleteMediaAsset(id: string, actor?: UserAccount | null): boolean;
+  deleteSourceCitation(id: string, actor?: UserAccount | null): boolean;
+  deleteUser(id: string, actor: UserAccount): boolean;
 }
 
 export function evaluateMediaPublicationGate(asset: MediaAssetItem): {
@@ -7704,6 +7714,175 @@ export class ModularCultureMapRepository implements CultureMapRepository {
     return structuredClone(existing);
   }
 
+  public deleteCulturalRecord(id: string, actor: UserAccount): boolean {
+    if (!RBAC.canRestrictOrWithdrawRecord(actor.role)) {
+      throw new Error("PERMISSION_DENIED: User lacks permission to delete cultural records.");
+    }
+    const existing = this.records.get(id);
+    if (!existing) return false;
+    this.records.delete(id);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM rights_passports WHERE cultural_record_id = ?").run(id);
+      this.sqliteDb?.prepare("DELETE FROM provenance_logs WHERE cultural_record_id = ?").run(id);
+      this.sqliteDb?.prepare("DELETE FROM heritage_vocabulary WHERE cultural_record_id = ?").run(id);
+      this.sqliteDb?.prepare("DELETE FROM cultural_records WHERE id = ?").run(id);
+    } catch {
+      // Continue if SQLite table does not exist
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteTradition(idOrSlug: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canCreateOrEditRecord(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete traditions.");
+    }
+    let targetId: string | null = null;
+    for (const [id, t] of this.traditions.entries()) {
+      if (id === idOrSlug || t.slug === idOrSlug) {
+        targetId = id;
+        break;
+      }
+    }
+    if (!targetId) return false;
+    this.traditions.delete(targetId);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM tradition_places WHERE tradition_id = ?").run(targetId);
+      this.sqliteDb?.prepare("DELETE FROM traditions WHERE id = ?").run(targetId);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteCulturalEvent(id: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canCreateOrEditRecord(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete events.");
+    }
+    const existing = this.events.get(id);
+    if (!existing) return false;
+    this.events.delete(id);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM cultural_event_occurrences WHERE event_id = ?").run(id);
+      this.sqliteDb?.prepare("DELETE FROM cultural_events WHERE id = ?").run(id);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deletePractitioner(idOrSlug: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canModerateEcosystemOrHerCraft(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete practitioners.");
+    }
+    let targetId: string | null = null;
+    for (const [id, p] of this.practitioners.entries()) {
+      if (id === idOrSlug || p.slug === idOrSlug) {
+        targetId = id;
+        break;
+      }
+    }
+    if (!targetId) return false;
+    this.practitioners.delete(targetId);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM practitioner_profiles WHERE id = ?").run(targetId);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteArtMartProduct(idOrSlug: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canModerateEcosystemOrHerCraft(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete products.");
+    }
+    let targetId: string | null = null;
+    for (const [id, p] of this.artMartProducts.entries()) {
+      if (id === idOrSlug || p.slug === idOrSlug) {
+        targetId = id;
+        break;
+      }
+    }
+    if (!targetId) return false;
+    this.artMartProducts.delete(targetId);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM art_mart_products WHERE id = ?").run(targetId);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteHerCraftEnterprise(idOrSlug: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canModerateEcosystemOrHerCraft(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete HerCraft enterprises.");
+    }
+    let targetId: string | null = null;
+    for (const [id, e] of this.herCraftEnterprises.entries()) {
+      if (id === idOrSlug || e.slug === idOrSlug) {
+        targetId = id;
+        break;
+      }
+    }
+    if (!targetId) return false;
+    this.herCraftEnterprises.delete(targetId);
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteMediaAsset(id: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canCreateOrEditRecord(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete media assets.");
+    }
+    const existing = this.mediaAssets.get(id);
+    if (!existing) return false;
+    this.mediaAssets.delete(id);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM media_assets WHERE id = ?").run(id);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteSourceCitation(id: string, actor?: UserAccount | null): boolean {
+    if (actor && !RBAC.canCreateOrEditRecord(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Staff permission required to delete sources.");
+    }
+    const existing = this.sources.get(id);
+    if (!existing) return false;
+    this.sources.delete(id);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM sources WHERE id = ?").run(id);
+    } catch {
+      // Continue
+    }
+    this.persistSnapshot();
+    return true;
+  }
+
+  public deleteUser(id: string, actor: UserAccount): boolean {
+    if (!RBAC.canManageUsers(actor.role)) {
+      throw new Error("PERMISSION_DENIED: Only Super Administrators can delete user accounts.");
+    }
+    if (actor.id === id) {
+      throw new Error("CANNOT_DELETE_SELF: You cannot delete your own administrative account.");
+    }
+    const existing = this.users.get(id);
+    if (!existing) return false;
+    this.users.delete(id);
+    try {
+      this.sqliteDb?.prepare("DELETE FROM users WHERE id = ?").run(id);
+    } catch {
+      // Continue
+    }
+    return true;
+  }
 }
 
 let defaultRepositoryInstance: CultureMapRepository | null = null;

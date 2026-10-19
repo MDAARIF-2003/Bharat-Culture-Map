@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import HeroIndiaArtwork from "@/components/HeroIndiaArtwork";
 import NationalCultureMap from "@/components/NationalCultureMap";
 import { apiClient } from "@/lib/api";
+import { getCultureImageFallback } from "@/lib/images";
 import { TRADITION_DIRECTORY_CATEGORIES } from "@shared/const";
 import type {
   CommunityEnquiryType,
@@ -352,7 +353,9 @@ function Home() {
   const activeCoverUrl =
     active?.heroImageUrl && active.heroImageUrl.trim().length > 0
       ? active.heroImageUrl
-      : null;
+      : active
+        ? getCultureImageFallback(active.category || active.titleEn)
+        : null;
 
   const openEnquiryModal = (
     enquiryType: CommunityEnquiryType,
@@ -876,26 +879,26 @@ function Home() {
         <div className="container mt-20">
           <div className="hairline mb-8" />
           <div className="grid gap-6 md:grid-cols-7">
-            {journey.map((item, index) => {
+            {journey.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.no} className="group relative">
-                  <div className="mb-5 flex items-center justify-between">
-                    <span className="eyebrow text-white/35">{item.no}</span>
+                <div
+                  key={item.no}
+                  className="group relative rounded-2xl border border-white/5 bg-white/[.02] p-4 transition-all duration-300 hover:border-[#ef9d45]/40 hover:bg-white/[.06] hover:-translate-y-1.5 bcm-card-interactive"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <span className="eyebrow text-white/40 font-mono text-[11px]">{item.no}</span>
                     <Icon
-                      size={16}
-                      className="text-[#efb167] transition-transform duration-300 group-hover:-translate-y-1"
+                      size={18}
+                      className="text-[#efb167] transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
-                  <h3 className="font-serif text-2xl text-white">
+                  <h3 className="font-serif text-xl font-semibold text-white group-hover:text-[#efb167] transition-colors">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-xs leading-5 text-white/45">
+                  <p className="mt-2 text-xs leading-5 text-white/50">
                     {item.body}
                   </p>
-                  {index < journey.length - 1 && (
-                    <span className="absolute -right-3 top-2 hidden h-px w-6 bg-white/15 md:block" />
-                  )}
                 </div>
               );
             })}
@@ -1099,21 +1102,32 @@ function Home() {
                       onClick={() =>
                         setLocation(`/traditions/${encodeURIComponent(t.slug)}`)
                       }
-                      className="flex flex-col justify-between rounded-2xl border border-[#6d463b]/15 bg-[#f3eee4] p-4 text-left transition hover:border-[#b96844]"
+                      className="group flex flex-col justify-between rounded-2xl border border-[#6d463b]/15 bg-[#fffaf1] p-4 text-left transition-all duration-300 hover:border-[#b96844] hover:shadow-lg hover:-translate-y-1 bcm-card-interactive"
                     >
-                      <div>
-                        <div className="eyebrow text-[9px] text-[#b96844]">
-                          {t.traditionCategory}
-                        </div>
-                        <div className="mt-1 font-serif text-xl text-[#332530]">
-                          {t.nameEn}
-                        </div>
-                        <div className="mt-1 text-xs text-[#6e5a55]">
-                          {t.statesRepresented.join(" · ")}
+                      <div className="flex gap-3 items-start">
+                        <img
+                          src={t.primaryHeroMedia?.directMediaUrl || getCultureImageFallback(t.traditionCategory || t.nameEn)}
+                          alt={t.nameEn}
+                          className="h-16 w-16 shrink-0 rounded-xl object-cover border border-[#6d463b]/15 transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = getCultureImageFallback(t.traditionCategory || t.nameEn);
+                          }}
+                        />
+                        <div>
+                          <div className="eyebrow text-[9px] text-[#b96844]">
+                            {t.traditionCategory}
+                          </div>
+                          <div className="mt-1 font-serif text-lg font-semibold text-[#332530] group-hover:text-[#b96844] transition-colors line-clamp-1">
+                            {t.nameEn}
+                          </div>
+                          <div className="mt-0.5 text-xs text-[#6e5a55] line-clamp-1">
+                            {t.statesRepresented.join(" · ")}
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-3 text-[11px] font-bold text-[#9c5540]">
-                        Open Dossier →
+                      <div className="mt-3 text-[11px] font-bold text-[#9c5540] flex items-center justify-between border-t border-[#6d463b]/10 pt-2">
+                        <span>Open Multi-Region Dossier</span>
+                        <span>→</span>
                       </div>
                     </button>
                   ))}
@@ -1124,13 +1138,18 @@ function Home() {
           <>
           /* Row 1: Cover Image Card + The Practice + Original Voice */
           <div className="mt-10 grid gap-6 lg:grid-cols-[.88fr_1.12fr]">
-            <div className="relative min-h-[540px] overflow-hidden rounded-[2rem] bg-[#2b2533] lg:min-h-[600px]">
-              {activeCoverUrl && !coverImgError ? (
+            <div className="relative min-h-[540px] overflow-hidden rounded-[2rem] bg-[#2b2533] lg:min-h-[600px] shadow-2xl bcm-card-interactive">
+              {activeCoverUrl ? (
                 <img
                   src={activeCoverUrl}
-                  alt={`Verified photograph representing ${active.titleEn} in ${active.displayLocationLabel}`}
-                  onError={() => setCoverImgError(true)}
-                  className="absolute inset-0 h-full w-full object-cover object-center opacity-90"
+                  alt={`Photograph representing ${active.titleEn} in ${active.displayLocationLabel}`}
+                  onError={(e) => {
+                    const fallback = getCultureImageFallback(active.category || active.titleEn);
+                    if ((e.target as HTMLImageElement).src !== fallback) {
+                      (e.target as HTMLImageElement).src = fallback;
+                    }
+                  }}
+                  className="absolute inset-0 h-full w-full object-cover object-center opacity-90 transition-transform duration-700 hover:scale-105"
                 />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#2b2533] p-8 text-center">
@@ -1140,8 +1159,7 @@ function Home() {
                   </div>
                   <p className="mt-2 max-w-xs text-xs leading-5 text-white/65">
                     No open-license or practitioner-consented photograph is
-                    attached to {active.titleEn} yet. Unrelated fallback imagery
-                    is never substituted.
+                    attached to {active.titleEn} yet.
                   </p>
                   <button
                     type="button"

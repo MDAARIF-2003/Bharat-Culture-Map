@@ -984,4 +984,86 @@ export const apiClient = {
       }
     );
   },
+  // Media Image Upload
+  async uploadImage(file: File): Promise<{ url: string; fileName: string; size: number }> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const fileData = reader.result as string;
+          const res = await requestJson<{ url: string; fileName: string; size: number }>(
+            "/api/v1/admin/upload",
+            {
+              method: "POST",
+              body: JSON.stringify({
+                fileData,
+                fileName: file.name,
+                mimeType: file.type,
+              }),
+            }
+          );
+          resolve(res);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(new Error("Failed to read image file"));
+      reader.readAsDataURL(file);
+    });
+  },
+  // Deletion APIs
+  deleteRecord(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/records/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteTradition(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/traditions/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteEvent(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/events/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deletePractitioner(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/practitioners/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteArtMartProduct(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/art-mart/products/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteHerCraftEnterprise(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/hercraft/enterprises/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteMediaAsset(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/media-assets/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteSourceCitation(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/sources/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
+  deleteUser(id: string) {
+    return requestJson<{ success: boolean; id: string }>(
+      `/api/v1/admin/users/${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+  },
 };

@@ -87,6 +87,31 @@ button:not(:disabled), a[href], [role="button"] { cursor: pointer; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(239,157,69,.5); border-radius: 99px; }
   .passport-stamp { border: 1px solid rgba(239,157,69,.58); color: #ef9d45; border-radius: 999px; padding: 10px 15px; transform: rotate(-7deg); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
   .focus-ring:focus-visible { outline: 2px solid #ef9d45; outline-offset: 4px; }
+
+  /* Professional elevated UI components */
+  .bcm-card-interactive {
+    background: linear-gradient(135deg, rgba(25, 28, 42, 0.75), rgba(16, 18, 28, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bcm-card-interactive:hover {
+    border-color: rgba(239, 157, 69, 0.45);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 35px -12px rgba(239, 157, 69, 0.15), 0 0 0 1px rgba(239, 157, 69, 0.2);
+  }
+
+  .bcm-shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(239,157,69,0.08) 50%, rgba(255,255,255,0.03) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 /* Genuine Geographic Map (Leaflet + OpenStreetMap) Theme Integration */

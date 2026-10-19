@@ -39,9 +39,12 @@ import {
   type VisitorAccessOption,
 } from "@shared/const";
 import type {
+  ArtMartProduct,
   CulturalEventAdmin,
   GeoLocation,
+  HerCraftEnterprise,
   MediaAssetItem,
+  PractitionerProfile,
   SourceCitation,
   TraditionAdmin,
   UserAccount,
@@ -49,18 +52,32 @@ import type {
 import {
   AlertTriangle,
   ArrowLeft,
+  Calendar,
   Check,
   CheckCircle2,
+  Compass,
+  Edit2,
   FileCheck2,
+  Image as ImageIcon,
+  Layers,
   Lock,
   LogOut,
+  MapPin,
   Plus,
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Trash2,
+  Upload,
   UserPlus,
+  Users,
+  X,
   XCircle,
 } from "lucide-react";
+import ImageUploadField from "@/components/ImageUploadField";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 const PART_B_STATEMENT_LABELS: Array<[string, string]> = [
   [
@@ -108,9 +125,59 @@ export default function AdminPanel() {
 
   // Admin workspace state
   const [activeTab, setActiveTab] = useState<
-    "records" | "traditions" | "create" | "calendar" | "users"
+    "records" | "traditions" | "create" | "calendar" | "practitioners" | "artmart" | "hercraft" | "media" | "users"
   >("records");
   const [traditionsList, setTraditionsList] = useState<TraditionAdmin[]>([]);
+  const [practitionersList, setPractitionersList] = useState<PractitionerProfile[]>([]);
+  const [artMartProductsList, setArtMartProductsList] = useState<ArtMartProduct[]>([]);
+  const [herCraftList, setHerCraftList] = useState<HerCraftEnterprise[]>([]);
+  const [mediaAssetsList, setMediaAssetsList] = useState<MediaAssetItem[]>([]);
+  const [sourcesList, setSourcesList] = useState<SourceCitation[]>([]);
+
+  // Deletion Confirmation Modal State
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    type: "record" | "tradition" | "event" | "practitioner" | "product" | "hercraft" | "media" | "source" | "user";
+    id: string;
+    name: string;
+  }>({
+    open: false,
+    type: "record",
+    id: "",
+    name: "",
+  });
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // New Practitioner Form State
+  const [newPractName, setNewPractName] = useState("");
+  const [newPractRole, setNewPractRole] = useState("");
+  const [newPractBio, setNewPractBio] = useState("");
+  const [newPractState, setNewPractState] = useState("Maharashtra");
+  const [newPractCity, setNewPractCity] = useState("Kolhapur");
+  const [newPractImage, setNewPractImage] = useState("");
+  const [newPractYears, setNewPractYears] = useState(15);
+  const [newPractAvailability, setNewPractAvailability] = useState("OPEN_FOR_WORKSHOPS");
+
+  // New ArtMart Product Form State
+  const [newProdTitle, setNewProdTitle] = useState("");
+  const [newProdCategory, setNewProdCategory] = useState("Craft");
+  const [newProdPrice, setNewProdPrice] = useState(1400);
+  const [newProdImage, setNewProdImage] = useState("");
+  const [newProdDescription, setNewProdDescription] = useState("");
+  const [newProdState, setNewProdState] = useState("Maharashtra");
+  const [newProdStock, setNewProdStock] = useState(12);
+
+  // New HerCraft Collective Form State
+  const [newHerCraftName, setNewHerCraftName] = useState("");
+  const [newHerCraftLeader, setNewHerCraftLeader] = useState("");
+  const [newHerCraftCategory, setNewHerCraftCategory] = useState("Textile");
+  const [newHerCraftState, setNewHerCraftState] = useState("Maharashtra");
+  const [newHerCraftDistrict, setNewHerCraftDistrict] = useState("Kolhapur District");
+  const [newHerCraftCity, setNewHerCraftCity] = useState("Kolhapur");
+  const [newHerCraftArtisans, setNewHerCraftArtisans] = useState(14);
+  const [newHerCraftSummary, setNewHerCraftSummary] = useState("");
+  const [newHerCraftImage, setNewHerCraftImage] = useState("");
+
   const [selectedTraditionId, setSelectedTraditionId] = useState<string | null>(
     null
   );
@@ -234,6 +301,7 @@ export default function AdminPanel() {
   const [newM3Narrator, setNewM3Narrator] = useState("");
   const [newSourceAttribution, setNewSourceAttribution] = useState("");
   const [newSourceUrl, setNewSourceUrl] = useState("");
+  const [newHeroImageUrl, setNewHeroImageUrl] = useState("");
 
   // Edit Selected Record Form State
   const [editOpen, setEditOpen] = useState(false);
@@ -270,16 +338,26 @@ export default function AdminPanel() {
 
   const loadWorkspaceData = async (currentUser: UserAccount) => {
     try {
-      const [recResp, locResp, evtResp, tradResp] = await Promise.all([
+      const [recResp, locResp, evtResp, tradResp, practList, prodList, herCraftResp, mediaResp, srcResp] = await Promise.all([
         apiClient.listAdminRecords(),
         apiClient.getLocations(),
         apiClient.listAdminEvents(),
         apiClient.listAdminTraditions(),
+        apiClient.listPractitioners().then((r) => r.practitioners).catch(() => []),
+        apiClient.listArtMartProducts({ includeUnpublished: true }).then((r) => r.products).catch(() => []),
+        apiClient.queryHerCraftDirectory({ includePending: true }).catch(() => ({ enterprises: [] })),
+        apiClient.listAdminMediaAssets().catch(() => ({ mediaAssets: [] })),
+        apiClient.listAdminSources().catch(() => ({ sources: [] })),
       ]);
       setRecords(recResp.records);
       setLocations(locResp.locations);
       setEventsList(evtResp.events);
       setTraditionsList(tradResp.traditions);
+      setPractitionersList(practList);
+      setArtMartProductsList(prodList);
+      setHerCraftList(herCraftResp.enterprises);
+      setMediaAssetsList(mediaResp.mediaAssets);
+      setSourcesList(srcResp.sources);
       if (!selectedTraditionId && tradResp.traditions.length > 0) {
         setSelectedTraditionId(tradResp.traditions[0].id);
       }
@@ -288,7 +366,7 @@ export default function AdminPanel() {
       }
       if (!selectedRecordId && recResp.records.length > 0) {
         const firstField = recResp.records.find(
-          (r) => r.recordOrigin === "FIELD_VERIFIED"
+          (r: AdminRecordWithGate) => r.recordOrigin === "FIELD_VERIFIED"
         );
         setSelectedRecordId((firstField || recResp.records[0]).id);
       }
@@ -657,6 +735,7 @@ export default function AdminPanel() {
         mediationM3NarratorCredit: newM3Narrator || null,
         sourceAttribution: newSourceAttribution.trim() || null,
         sourceUrl: newSourceUrl.trim() || null,
+        heroImageUrl: newHeroImageUrl.trim() || "",
       });
       updateSelectedInList(record);
       setOriginFilter("FIELD_VERIFIED");
@@ -671,6 +750,7 @@ export default function AdminPanel() {
       setNewChosenName("");
       setNewFullNamePrivate("");
       setNewCommunityName("");
+      setNewHeroImageUrl("");
       setNewSummaryEn("");
       setNewPracticeContextEn("");
     } catch (err: any) {
@@ -678,6 +758,190 @@ export default function AdminPanel() {
         type: "error",
         message: err.message || "Failed to create record.",
       });
+    }
+  };
+
+  const triggerDelete = (
+    type: "record" | "tradition" | "event" | "practitioner" | "product" | "hercraft" | "media" | "source" | "user",
+    id: string,
+    name: string
+  ) => {
+    setDeleteModal({ open: true, type, id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setDeleteLoading(true);
+    try {
+      if (deleteModal.type === "record") {
+        await apiClient.deleteRecord(deleteModal.id);
+        setRecords((prev) => prev.filter((r) => r.id !== deleteModal.id));
+        if (selectedRecordId === deleteModal.id) {
+          setSelectedRecordId(null);
+        }
+        setBanner({
+          type: "success",
+          message: `Record "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "tradition") {
+        await apiClient.deleteTradition(deleteModal.id);
+        setTraditionsList((prev) => prev.filter((t) => t.id !== deleteModal.id && t.slug !== deleteModal.id));
+        if (selectedTraditionId === deleteModal.id) {
+          setSelectedTraditionId(null);
+        }
+        setBanner({
+          type: "success",
+          message: `Tradition "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "event") {
+        await apiClient.deleteEvent(deleteModal.id);
+        setEventsList((prev) => prev.filter((e) => e.id !== deleteModal.id));
+        if (selectedEventId === deleteModal.id) {
+          setSelectedEventId(null);
+        }
+        setBanner({
+          type: "success",
+          message: `Event "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "practitioner") {
+        await apiClient.deletePractitioner(deleteModal.id);
+        setPractitionersList((prev) => prev.filter((p) => p.id !== deleteModal.id && p.slug !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `Practitioner "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "product") {
+        await apiClient.deleteArtMartProduct(deleteModal.id);
+        setArtMartProductsList((prev) => prev.filter((p) => p.id !== deleteModal.id && p.slug !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `Product "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "hercraft") {
+        await apiClient.deleteHerCraftEnterprise(deleteModal.id);
+        setHerCraftList((prev) => prev.filter((h) => h.id !== deleteModal.id && h.slug !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `HerCraft Collective "${deleteModal.name}" deleted successfully.`,
+        });
+      } else if (deleteModal.type === "media") {
+        await apiClient.deleteMediaAsset(deleteModal.id);
+        setMediaAssetsList((prev) => prev.filter((m) => m.id !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `Media asset deleted successfully.`,
+        });
+      } else if (deleteModal.type === "source") {
+        await apiClient.deleteSourceCitation(deleteModal.id);
+        setSourcesList((prev) => prev.filter((s) => s.id !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `Source citation deleted successfully.`,
+        });
+      } else if (deleteModal.type === "user") {
+        await apiClient.deleteUser(deleteModal.id);
+        setUsersList((prev) => prev.filter((u) => u.id !== deleteModal.id));
+        setBanner({
+          type: "success",
+          message: `User account deleted successfully.`,
+        });
+      }
+      setDeleteModal({ open: false, type: "record", id: "", name: "" });
+    } catch (err: any) {
+      setBanner({
+        type: "error",
+        message: err?.message || "Failed to delete item.",
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleCreatePractitioner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPractName.trim()) return;
+    try {
+      const slug = newPractName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const res = await apiClient.createPractitioner({
+        slug,
+        displayName: newPractName.trim(),
+        roleTitle: newPractRole.trim() || "Master Artisan & Knowledge Bearer",
+        shortBio: newPractBio.trim() || "Master practitioner preserving traditional craftsmanship and passing on ancestral knowledge.",
+        fullNarrative: newPractBio.trim(),
+        stateName: newPractState,
+        cityName: newPractCity,
+        profileImageUrl: newPractImage.trim(),
+        yearsOfPractice: Number(newPractYears) || 15,
+        availabilityStatus: newPractAvailability as any,
+        verificationBadge: "VERIFIED_MASTER_ARTISAN",
+        publicationStatus: "PUBLISHED",
+      });
+      setPractitionersList((prev) => [res.practitioner, ...prev]);
+      setBanner({ type: "success", message: `Created practitioner profile "${res.practitioner.displayName}".` });
+      setNewPractName("");
+      setNewPractRole("");
+      setNewPractBio("");
+      setNewPractImage("");
+    } catch (err: any) {
+      setBanner({ type: "error", message: err?.message || "Failed to create practitioner." });
+    }
+  };
+
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProdTitle.trim()) return;
+    try {
+      const slug = newProdTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const res = await apiClient.createArtMartProduct({
+        slug,
+        title: newProdTitle.trim(),
+        category: newProdCategory as any,
+        priceInr: Number(newProdPrice) || 1200,
+        imageUrl: newProdImage.trim(),
+        description: newProdDescription.trim() || "Handcrafted traditional item produced by accredited guild artisans.",
+        stateName: newProdState,
+        stockQuantity: Number(newProdStock) || 10,
+        approvalStatus: "APPROVED",
+        publicationStatus: "PUBLISHED",
+      });
+      setArtMartProductsList((prev) => [res.product, ...prev]);
+      setBanner({ type: "success", message: `Created marketplace product "${res.product.title}".` });
+      setNewProdTitle("");
+      setNewProdPrice(1400);
+      setNewProdImage("");
+      setNewProdDescription("");
+    } catch (err: any) {
+      setBanner({ type: "error", message: err?.message || "Failed to create product." });
+    }
+  };
+
+  const handleCreateHerCraft = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newHerCraftName.trim()) return;
+    try {
+      const slug = newHerCraftName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const res = await apiClient.createHerCraftEnterprise({
+        slug,
+        enterpriseName: newHerCraftName.trim(),
+        leaderOrCollectiveLabel: newHerCraftLeader.trim() || "Women Artisans SHG",
+        craftCategory: newHerCraftCategory,
+        stateName: newHerCraftState,
+        districtName: newHerCraftDistrict,
+        cityName: newHerCraftCity,
+        womenArtisansCount: Number(newHerCraftArtisans) || 12,
+        shortSummary: newHerCraftSummary.trim() || "Women-led craft collective empowering regional artisans.",
+        heroImageUrl: newHerCraftImage.trim(),
+        approvalStatus: "APPROVED",
+        publicationStatus: "PUBLISHED",
+      });
+      setHerCraftList((prev) => [res.enterprise, ...prev]);
+      setBanner({ type: "success", message: `Created HerCraft collective "${res.enterprise.enterpriseName}".` });
+      setNewHerCraftName("");
+      setNewHerCraftLeader("");
+      setNewHerCraftSummary("");
+      setNewHerCraftImage("");
+    } catch (err: any) {
+      setBanner({ type: "error", message: err?.message || "Failed to create HerCraft enterprise." });
     }
   };
 
@@ -1177,7 +1441,52 @@ export default function AdminPanel() {
                   : "border border-white/10 bg-white/5 text-white/70 hover:text-white"
               }`}
             >
-              Cultural Calendar ({eventsList.length})
+              <Calendar size={13} className="mr-1.5 inline" />
+              Calendar ({eventsList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("practitioners")}
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${
+                activeTab === "practitioners"
+                  ? "bg-[#ef9d45] text-[#251922]"
+                  : "border border-white/10 bg-white/5 text-white/70 hover:text-white"
+              }`}
+            >
+              <Users size={13} className="mr-1.5 inline" />
+              Practitioners ({practitionersList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("artmart")}
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${
+                activeTab === "artmart"
+                  ? "bg-[#ef9d45] text-[#251922]"
+                  : "border border-white/10 bg-white/5 text-white/70 hover:text-white"
+              }`}
+            >
+              <ShoppingBag size={13} className="mr-1.5 inline" />
+              Art-Mart ({artMartProductsList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("hercraft")}
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${
+                activeTab === "hercraft"
+                  ? "bg-[#ef9d45] text-[#251922]"
+                  : "border border-white/10 bg-white/5 text-white/70 hover:text-white"
+              }`}
+            >
+              <Sparkles size={13} className="mr-1.5 inline" />
+              HerCraft ({herCraftList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("media")}
+              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${
+                activeTab === "media"
+                  ? "bg-[#ef9d45] text-[#251922]"
+                  : "border border-white/10 bg-white/5 text-white/70 hover:text-white"
+              }`}
+            >
+              <ImageIcon size={13} className="mr-1.5 inline" />
+              Media Assets ({mediaAssetsList.length})
             </button>
             <button
               onClick={() => setActiveTab("create")}
@@ -1188,7 +1497,7 @@ export default function AdminPanel() {
               }`}
             >
               <Plus size={13} className="mr-1.5 inline" />
-              Add Field Cultural Record
+              Add Record
             </button>
             {user.role === "SUPER_ADMIN" && (
               <button
@@ -1419,6 +1728,14 @@ export default function AdminPanel() {
                         >
                           Publish to Public Website
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => triggerDelete("record", selectedRecord.id, selectedRecord.titleEn)}
+                          className="rounded-full border border-red-500/40 bg-red-500/10 px-3.5 py-2.5 text-xs font-bold uppercase tracking-[.12em] text-red-300 hover:bg-red-500 hover:text-white transition"
+                        >
+                          <Trash2 size={13} className="mr-1 inline" />
+                          Delete Record
+                        </button>
                       </div>
                     </div>
 
@@ -1542,13 +1859,11 @@ export default function AdminPanel() {
 
                       <div className="grid gap-4 sm:grid-cols-4">
                         <div className="sm:col-span-2">
-                          <label className="eyebrow block text-white/60">
-                            Cover Image URL
-                          </label>
-                          <input
+                          <ImageUploadField
+                            label="Cover Hero Photo"
                             value={editHeroImageUrl}
-                            onChange={(e) => setEditHeroImageUrl(e.target.value)}
-                            className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                            onChange={setEditHeroImageUrl}
+                            placeholder="Enter image URL or select from curated sample images"
                           />
                         </div>
                         <div>
@@ -2386,6 +2701,15 @@ export default function AdminPanel() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <ImageUploadField
+                label="Cover Hero Photo"
+                value={newHeroImageUrl}
+                onChange={setNewHeroImageUrl}
+                placeholder="Upload or pick a cultural image for this record"
+              />
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="eyebrow block text-white/60">
@@ -2564,6 +2888,16 @@ export default function AdminPanel() {
                         className="rounded-full border border-white/15 px-3.5 py-2 text-xs text-white/55"
                       >
                         Archive
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          triggerDelete("event", selectedEvent.id, selectedEvent.titleEn)
+                        }
+                        className="rounded-full border border-red-500/40 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-red-500 hover:text-white transition"
+                      >
+                        <Trash2 size={12} className="mr-1 inline" />
+                        Delete Event
                       </button>
                     </div>
                   </div>
@@ -3087,19 +3421,31 @@ export default function AdminPanel() {
                         )}
                       </h2>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setLocation(
-                          `/traditions/${encodeURIComponent(
-                            selectedTradition.slug
-                          )}`
-                        )
-                      }
-                      className="rounded-full border border-[#57c5a9]/40 bg-[#57c5a9]/10 px-4 py-1.5 text-xs font-semibold text-[#8ed5bd]"
-                    >
-                      Open Public Dossier ↗
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocation(
+                            `/traditions/${encodeURIComponent(
+                              selectedTradition.slug
+                            )}`
+                          )
+                        }
+                        className="rounded-full border border-[#57c5a9]/40 bg-[#57c5a9]/10 px-4 py-1.5 text-xs font-semibold text-[#8ed5bd]"
+                      >
+                        Open Public Dossier ↗
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          triggerDelete("tradition", selectedTradition.id, selectedTradition.nameEn)
+                        }
+                        className="rounded-full border border-red-500/40 bg-red-500/10 px-3.5 py-1.5 text-xs font-bold text-red-300 hover:bg-red-500 hover:text-white transition"
+                      >
+                        <Trash2 size={12} className="mr-1 inline" />
+                        Delete Tradition
+                      </button>
+                    </div>
                   </div>
                   <p className="mt-2 text-xs leading-6 text-white/70">
                     {selectedTradition.summary}
@@ -3280,18 +3626,28 @@ export default function AdminPanel() {
                           <strong className="text-white">
                             [{m.mediaType}] {m.title}
                           </strong>
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                              m.mediaPublicationGate?.allowed
-                                ? "bg-[#57c5a9]/20 text-[#8ed5bd]"
-                                : "bg-red-500/20 text-red-200"
-                            }`}
-                          >
-                            {m.rightsStatus} ·{" "}
-                            {m.mediaPublicationGate?.allowed
-                              ? "CLEARED FOR PUBLIC"
-                              : "BLOCKED BY RIGHTS GATE"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                                m.mediaPublicationGate?.allowed
+                                  ? "bg-[#57c5a9]/20 text-[#8ed5bd]"
+                                  : "bg-red-500/20 text-red-200"
+                              }`}
+                            >
+                              {m.rightsStatus} ·{" "}
+                              {m.mediaPublicationGate?.allowed
+                                ? "CLEARED FOR PUBLIC"
+                                : "BLOCKED BY RIGHTS GATE"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => triggerDelete("media", m.id, m.title)}
+                              className="rounded px-2 py-0.5 text-[10px] text-red-300 hover:bg-red-500/20 transition"
+                            >
+                              <Trash2 size={11} className="inline mr-1" />
+                              Delete
+                            </button>
+                          </div>
                         </div>
                         <div className="mt-1 text-white/65">
                           License: {m.licenseIdentifier} · Attribution:{" "}
@@ -3349,14 +3705,16 @@ export default function AdminPanel() {
                       value={medSourcePageUrl}
                       onChange={(e) => setMedSourcePageUrl(e.target.value)}
                       placeholder="Source Page URL (Wikimedia Commons / UNESCO)"
-                      className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                      className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white sm:col-span-2"
                     />
-                    <input
-                      value={medDirectUrl}
-                      onChange={(e) => setMedDirectUrl(e.target.value)}
-                      placeholder="Direct Media URL (upload.wikimedia.org/...)"
-                      className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
-                    />
+                    <div className="sm:col-span-2">
+                      <ImageUploadField
+                        label="Direct Media Asset / Image File"
+                        value={medDirectUrl}
+                        onChange={setMedDirectUrl}
+                        placeholder="Direct URL or upload local media asset"
+                      />
+                    </div>
                     <input
                       required
                       value={medLicense}
@@ -3482,7 +3840,601 @@ export default function AdminPanel() {
             </div>
           </div>
         )}
+
+        {/* ===================================================================
+            TAB: PRACTITIONERS & KNOWLEDGE BEARERS
+            =================================================================== */}
+        {activeTab === "practitioners" && (
+          <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+            {/* Create Practitioner Form */}
+            <form
+              onSubmit={handleCreatePractitioner}
+              className="space-y-4 rounded-3xl border border-white/10 bg-[#151927] p-6 h-fit"
+            >
+              <div className="eyebrow text-[#efb167]">ARTISAN INTAKE</div>
+              <h3 className="font-serif text-2xl text-white">Add Practitioner Profile</h3>
+              <p className="text-xs text-white/55">
+                Register master artisans, craftspeople, and living tradition knowledge bearers with accredited credentials.
+              </p>
+
+              <div>
+                <label className="eyebrow block text-white/60">Display Name *</label>
+                <input
+                  required
+                  value={newPractName}
+                  onChange={(e) => setNewPractName(e.target.value)}
+                  placeholder="e.g., Master Weaver Shobha Devi"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="eyebrow block text-white/60">Role / Honorific Title</label>
+                <input
+                  value={newPractRole}
+                  onChange={(e) => setNewPractRole(e.target.value)}
+                  placeholder="e.g., National Awardee Master Artisan"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">State</label>
+                  <input
+                    value={newPractState}
+                    onChange={(e) => setNewPractState(e.target.value)}
+                    placeholder="e.g., Maharashtra"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">City / Cluster</label>
+                  <input
+                    value={newPractCity}
+                    onChange={(e) => setNewPractCity(e.target.value)}
+                    placeholder="e.g., Kolhapur"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">Years of Practice</label>
+                  <input
+                    type="number"
+                    value={newPractYears}
+                    onChange={(e) => setNewPractYears(Number(e.target.value) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">Availability</label>
+                  <select
+                    value={newPractAvailability}
+                    onChange={(e) => setNewPractAvailability(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-[#10121c] px-3 py-2 text-xs text-white"
+                  >
+                    <option value="OPEN_FOR_WORKSHOPS">Open for Workshops</option>
+                    <option value="AVAILABLE_FOR_APPRENTICESHIP">Apprenticeship</option>
+                    <option value="BY_ENQUIRY_ONLY">By Enquiry Only</option>
+                    <option value="SEASONAL_BREAK">Seasonal Break</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <ImageUploadField
+                  label="Practitioner Photo"
+                  value={newPractImage}
+                  onChange={setNewPractImage}
+                  placeholder="Upload or choose artisan portrait"
+                />
+              </div>
+
+              <div>
+                <label className="eyebrow block text-white/60">Biographical Narrative</label>
+                <textarea
+                  rows={3}
+                  value={newPractBio}
+                  onChange={(e) => setNewPractBio(e.target.value)}
+                  placeholder="Artisan lineage, training, ancestral techniques, and community work…"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 p-3 text-xs text-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#ef9d45] py-2.5 text-xs font-extrabold uppercase tracking-[.12em] text-[#251922]"
+              >
+                Create Practitioner Profile
+              </button>
+            </form>
+
+            {/* Practitioners Directory Listing */}
+            <div className="rounded-3xl border border-white/10 bg-[#151927] p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="eyebrow text-[#efb167]">LIVING HERITAGE PRACTITIONERS</div>
+                  <h3 className="mt-1 font-serif text-2xl text-white">
+                    Master Artisans & Knowledge Bearers ({practitionersList.length})
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {practitionersList.map((p) => (
+                  <div
+                    key={p.id || p.slug}
+                    className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] p-4 transition hover:border-white/20"
+                  >
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={p.profileImageUrl || "/sample-images/artisan-hands.jpg"}
+                          alt={p.displayName}
+                          className="h-14 w-14 rounded-full object-cover border border-[#ef9d45]/40"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/sample-images/artisan-hands.jpg";
+                          }}
+                        />
+                        <div>
+                          <div className="font-serif text-lg font-semibold text-white">
+                            {p.displayName}
+                          </div>
+                          <div className="text-xs text-[#efb167]">{p.roleTitle}</div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-white/50 mt-0.5">
+                            <MapPin size={11} className="text-[#57c5a9]" />
+                            {p.cityName ? `${p.cityName}, ` : ""}{p.stateName} · {p.yearsOfPractice} yrs exp.
+                          </div>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-xs leading-5 text-white/70 line-clamp-2">
+                        {p.shortBio || p.fullNarrative}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+                      <span className="rounded-full bg-[#57c5a9]/15 px-2.5 py-0.5 text-[10px] font-semibold text-[#8ed5bd]">
+                        {p.availabilityStatus.replace(/_/g, " ")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => triggerDelete("practitioner", p.id, p.displayName)}
+                        className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                      >
+                        <Trash2 size={12} className="inline mr-1" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: ART-MART CRAFT MARKETPLACE
+            =================================================================== */}
+        {activeTab === "artmart" && (
+          <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+            {/* Create Product Form */}
+            <form
+              onSubmit={handleCreateProduct}
+              className="space-y-4 rounded-3xl border border-white/10 bg-[#151927] p-6 h-fit"
+            >
+              <div className="eyebrow text-[#efb167]">MARKETPLACE INTAKE</div>
+              <h3 className="font-serif text-2xl text-white">Add Art-Mart Product</h3>
+              <p className="text-xs text-white/55">
+                List verified handcrafted cultural artifacts, textiles, metalwork, and pottery with full artisan provenance.
+              </p>
+
+              <div>
+                <label className="eyebrow block text-white/60">Product Title *</label>
+                <input
+                  required
+                  value={newProdTitle}
+                  onChange={(e) => setNewProdTitle(e.target.value)}
+                  placeholder="e.g., Handloom Paithani Silk Dupatta"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">Category</label>
+                  <select
+                    value={newProdCategory}
+                    onChange={(e) => setNewProdCategory(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-[#10121c] px-3 py-2 text-xs text-white"
+                  >
+                    <option value="Craft">Craft</option>
+                    <option value="Textile">Textile</option>
+                    <option value="Pottery">Pottery</option>
+                    <option value="Jewelry">Jewelry</option>
+                    <option value="Metalwork">Metalwork</option>
+                    <option value="Woodwork">Woodwork</option>
+                    <option value="Painting">Painting</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">State</label>
+                  <input
+                    value={newProdState}
+                    onChange={(e) => setNewProdState(e.target.value)}
+                    placeholder="Maharashtra"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">Price (INR) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(Number(e.target.value) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">In-Stock Count</label>
+                  <input
+                    type="number"
+                    value={newProdStock}
+                    onChange={(e) => setNewProdStock(Number(e.target.value) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <ImageUploadField
+                  label="Product Photo"
+                  value={newProdImage}
+                  onChange={setNewProdImage}
+                  placeholder="Upload product photo or choose sample"
+                />
+              </div>
+
+              <div>
+                <label className="eyebrow block text-white/60">Description & Craft Details</label>
+                <textarea
+                  rows={3}
+                  value={newProdDescription}
+                  onChange={(e) => setNewProdDescription(e.target.value)}
+                  placeholder="Describe material, weave or casting technique, GI heritage status…"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 p-3 text-xs text-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#ef9d45] py-2.5 text-xs font-extrabold uppercase tracking-[.12em] text-[#251922]"
+              >
+                Add Marketplace Product
+              </button>
+            </form>
+
+            {/* Products Directory Listing */}
+            <div className="rounded-3xl border border-white/10 bg-[#151927] p-6">
+              <div className="eyebrow text-[#efb167]">AUTHENTIC CULTURAL ARTIFACTS</div>
+              <h3 className="mt-1 font-serif text-2xl text-white">
+                Art-Mart Catalog ({artMartProductsList.length})
+              </h3>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {artMartProductsList.map((prod) => (
+                  <div
+                    key={prod.id || prod.slug}
+                    className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] overflow-hidden transition hover:border-white/20"
+                  >
+                    <div className="h-40 w-full overflow-hidden bg-black/40 relative">
+                      <img
+                        src={prod.imageUrl || "/sample-images/handloom-sari.jpg"}
+                        alt={prod.title}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/sample-images/handloom-sari.jpg";
+                        }}
+                      />
+                      <span className="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur px-2.5 py-0.5 text-[10px] font-bold text-[#efb167]">
+                        ₹{prod.priceInr.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold tracking-wider text-[#57c5a9]">
+                          {prod.category} · {prod.stateName}
+                        </div>
+                        <h4 className="font-serif text-base font-semibold text-white mt-1 line-clamp-1">
+                          {prod.title}
+                        </h4>
+                        <p className="mt-1 text-xs text-white/60 line-clamp-2">
+                          {prod.description}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+                        <span className="text-[11px] text-white/50">
+                          Stock: {prod.stockQuantity} units
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => triggerDelete("product", prod.id, prod.title)}
+                          className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                        >
+                          <Trash2 size={12} className="inline mr-1" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: HERCRAFT WOMEN-LED ENTERPRISES & COLLECTIVES
+            =================================================================== */}
+        {activeTab === "hercraft" && (
+          <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+            {/* Create HerCraft Enterprise Form */}
+            <form
+              onSubmit={handleCreateHerCraft}
+              className="space-y-4 rounded-3xl border border-white/10 bg-[#151927] p-6 h-fit"
+            >
+              <div className="eyebrow text-[#efb167]">WOMEN IN CRAFT INTAKE</div>
+              <h3 className="font-serif text-2xl text-white">Add HerCraft Collective</h3>
+              <p className="text-xs text-white/55">
+                Register women-led Self-Help Groups (SHGs), artisan cooperatives, and craft guilds empowering women artisans.
+              </p>
+
+              <div>
+                <label className="eyebrow block text-white/60">Enterprise / SHG Name *</label>
+                <input
+                  required
+                  value={newHerCraftName}
+                  onChange={(e) => setNewHerCraftName(e.target.value)}
+                  placeholder="e.g., Warli Women Artisans SHG"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="eyebrow block text-white/60">Leader / Collective Label</label>
+                <input
+                  value={newHerCraftLeader}
+                  onChange={(e) => setNewHerCraftLeader(e.target.value)}
+                  placeholder="e.g., Sunita Bai & 25 Village Weavers"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">Craft Category</label>
+                  <input
+                    value={newHerCraftCategory}
+                    onChange={(e) => setNewHerCraftCategory(e.target.value)}
+                    placeholder="e.g., Textile / Folk Art"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">Women Artisans Count</label>
+                  <input
+                    type="number"
+                    value={newHerCraftArtisans}
+                    onChange={(e) => setNewHerCraftArtisans(Number(e.target.value) || 0)}
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="eyebrow block text-white/60">State</label>
+                  <input
+                    value={newHerCraftState}
+                    onChange={(e) => setNewHerCraftState(e.target.value)}
+                    placeholder="Maharashtra"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="eyebrow block text-white/60">District / Cluster</label>
+                  <input
+                    value={newHerCraftDistrict}
+                    onChange={(e) => setNewHerCraftDistrict(e.target.value)}
+                    placeholder="Palghar District"
+                    className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <ImageUploadField
+                  label="Collective Hero Image"
+                  value={newHerCraftImage}
+                  onChange={setNewHerCraftImage}
+                  placeholder="Upload or choose collective photo"
+                />
+              </div>
+
+              <div>
+                <label className="eyebrow block text-white/60">Summary & Mission</label>
+                <textarea
+                  rows={3}
+                  value={newHerCraftSummary}
+                  onChange={(e) => setNewHerCraftSummary(e.target.value)}
+                  placeholder="Artisan empowerment model, community impact, traditional craft techniques…"
+                  className="mt-1 w-full rounded-xl border border-white/15 bg-black/25 p-3 text-xs text-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#ef9d45] py-2.5 text-xs font-extrabold uppercase tracking-[.12em] text-[#251922]"
+              >
+                Register HerCraft Collective
+              </button>
+            </form>
+
+            {/* Collectives Listing */}
+            <div className="rounded-3xl border border-white/10 bg-[#151927] p-6">
+              <div className="eyebrow text-[#efb167]">WOMEN-LED ENTERPRISES & SHGS</div>
+              <h3 className="mt-1 font-serif text-2xl text-white">
+                HerCraft Collectives ({herCraftList.length})
+              </h3>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {herCraftList.map((ent) => (
+                  <div
+                    key={ent.id || ent.slug}
+                    className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] overflow-hidden transition hover:border-white/20"
+                  >
+                    <div className="h-40 w-full overflow-hidden bg-black/40 relative">
+                      <img
+                        src={ent.heroImageUrl || "/sample-images/textile-weaving.jpg"}
+                        alt={ent.enterpriseName}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/sample-images/textile-weaving.jpg";
+                        }}
+                      />
+                      <span className="absolute top-2 right-2 rounded-full bg-[#57c5a9]/90 px-2.5 py-0.5 text-[10px] font-bold text-[#102124]">
+                        {ent.womenArtisansCount} Women Artisans
+                      </span>
+                    </div>
+
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold tracking-wider text-[#efb167]">
+                          {ent.craftCategory} · {ent.stateName}
+                        </div>
+                        <h4 className="font-serif text-lg font-semibold text-white mt-1">
+                          {ent.enterpriseName}
+                        </h4>
+                        <div className="text-xs text-white/60 mt-0.5">
+                          {ent.leaderOrCollectiveLabel}
+                        </div>
+                        <p className="mt-2 text-xs leading-5 text-white/70 line-clamp-2">
+                          {ent.shortSummary || ent.storyNarrative}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+                        <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] text-white/60">
+                          {ent.enterpriseType || "WOMEN_SHG"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => triggerDelete("hercraft", ent.id, ent.enterpriseName)}
+                          className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                        >
+                          <Trash2 size={12} className="inline mr-1" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            TAB: VISUAL MEDIA ASSET GALLERY
+            =================================================================== */}
+        {activeTab === "media" && (
+          <div className="rounded-3xl border border-white/10 bg-[#151927] p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <div className="eyebrow text-[#efb167]">MEDIA AUDIT & GOVERNANCE</div>
+                <h3 className="mt-1 font-serif text-2xl text-white">
+                  Cultural Media Assets Registry ({mediaAssetsList.length})
+                </h3>
+                <p className="mt-1 text-xs text-white/55">
+                  All licensed photographs, archival audio, and performance recordings registered across traditions.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("traditions")}
+                className="rounded-full bg-[#ef9d45] px-4 py-2 text-xs font-bold uppercase text-[#251922]"
+              >
+                + Register New Media Asset
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {mediaAssetsList.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] overflow-hidden"
+                >
+                  <div className="h-44 w-full overflow-hidden bg-black/40 relative">
+                    <img
+                      src={m.directMediaUrl || "/sample-images/artisan-hands.jpg"}
+                      alt={m.title}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/sample-images/artisan-hands.jpg";
+                      }}
+                    />
+                    <span className="absolute top-2 left-2 rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[9px] font-bold text-white uppercase">
+                      {m.mediaType}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h4 className="font-semibold text-xs text-white line-clamp-1">
+                        {m.title}
+                      </h4>
+                      <div className="text-[11px] text-white/50 mt-1 line-clamp-1">
+                        Creator: {m.creatorOrPerformer || "Archival"}
+                      </div>
+                      <div className="text-[10px] text-white/40 mt-0.5">
+                        {m.licenseIdentifier}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2 text-[10px]">
+                      <span className="text-[#57c5a9]">{m.rightsStatus}</span>
+                      <button
+                        type="button"
+                        onClick={() => triggerDelete("media", m.id, m.title)}
+                        className="text-red-300 hover:text-red-200"
+                      >
+                        <Trash2 size={12} className="inline" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      <DeleteConfirmModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, type: "record", id: "", name: "" })}
+        onConfirm={handleConfirmDelete}
+        itemType={deleteModal.type}
+        itemName={deleteModal.name}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

@@ -33,6 +33,7 @@ import {
   type MapController,
 } from "@/components/Map";
 import { apiClient } from "@/lib/api";
+import { getCultureImageFallback } from "@/lib/images";
 import {
   EVIDENCE_STATUSES,
   TRADITION_DIRECTORY_CATEGORIES,
@@ -90,33 +91,37 @@ function NeutralTraditionPlaceholder({
   subcategory?: string;
   onContribute?: () => void;
 }) {
+  const fallbackImg = getCultureImageFallback(category || name);
   return (
-    <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[radial-gradient(circle_at_50%_30%,rgba(239,157,69,0.12),rgba(16,20,34,0.95))] p-6 text-center">
-      <div className="grid h-12 w-12 place-items-center rounded-full border border-[#ef9d45]/35 bg-[#ef9d45]/10 text-[#efb167]">
-        <Compass size={20} />
+    <div className="group relative flex h-full min-h-[220px] flex-col justify-end overflow-hidden rounded-2xl p-5 text-left bcm-card-interactive shadow-lg">
+      <img
+        src={fallbackImg}
+        alt={name}
+        className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#101422] via-[#101422]/70 to-black/30" />
+      <div className="relative z-10">
+        <div className="mb-1 w-fit rounded-full bg-black/60 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#efb167] backdrop-blur-md">
+          {category}
+          {subcategory ? ` · ${subcategory}` : ""}
+        </div>
+        <div className="font-serif text-lg font-semibold text-white">{name}</div>
+        <p className="mt-1 text-xs text-white/70 line-clamp-2">
+          Living Indian cultural tradition and heritage practice with community provenance.
+        </p>
+        {onContribute && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onContribute();
+            }}
+            className="mt-3 rounded-full border border-[#ef9d45]/45 bg-[#ef9d45]/20 px-3.5 py-1.5 text-[11px] font-semibold text-[#efb167] backdrop-blur-md hover:bg-[#ef9d45] hover:text-[#241a20] transition"
+          >
+            Contribute Verified Media
+          </button>
+        )}
       </div>
-      <div className="eyebrow mt-3 text-[10px] text-[#efb167]">
-        {category}
-        {subcategory ? ` · ${subcategory}` : ""}
-      </div>
-      <div className="mt-1 font-serif text-lg text-white">{name}</div>
-      <p className="mt-1.5 max-w-xs text-xs leading-5 text-white/55">
-        Verified open-license or practitioner-consented photography for this
-        tradition is awaiting rights clearance. No unrelated fallback image is
-        substituted.
-      </p>
-      {onContribute && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onContribute();
-          }}
-          className="mt-3 rounded-full border border-[#ef9d45]/45 bg-[#ef9d45]/15 px-3.5 py-1.5 text-[11px] font-semibold text-[#efb167] hover:bg-[#ef9d45] hover:text-[#241a20]"
-        >
-          Contribute Verified Media
-        </button>
-      )}
     </div>
   );
 }

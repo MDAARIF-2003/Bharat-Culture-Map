@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AdminPanel from "./pages/AdminPanel";
 import ArtMart from "./pages/ArtMart";
@@ -56,6 +57,7 @@ export default function App() {
             <main className="flex-1 w-full max-w-full overflow-x-hidden">
               <Router />
             </main>
+            <SiteFooter />
           </div>
         </TooltipProvider>
       </ThemeProvider>
