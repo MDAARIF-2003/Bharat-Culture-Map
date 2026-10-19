@@ -1,0 +1,1087 @@
+{
+  "metadata": {
+    "title": "Bharat CultureMap — Administrative Geography Directory of India",
+    "version": "2026.1",
+    "sources": [
+      {
+        "name": "Local Government Directory (LGD) & Census of India 2011 Administrative Hierarchy",
+        "publisher": "Ministry of Panchayati Raj & Office of the Registrar General & Census Commissioner, India",
+        "license": "Government Open Data License - India (GODL-India)",
+        "url": "https://lgdirectory.gov.in/"
+      },
+      {
+        "name": "OpenStreetMap Administrative Centroids & Place Nodes",
+        "publisher": "OpenStreetMap Contributors",
+        "license": "Open Data Commons Open Database License (ODbL)",
+        "url": "https://www.openstreetmap.org/copyright"
+      },
+      {
+        "name": "Maharashtra State Gazetteers — Kolhapur District Administrative & Cultural Directory",
+        "publisher": "Gazetteers Department, Government of Maharashtra",
+        "license": "Public Reference / Government of Maharashtra Open Publication",
+        "url": "https://cultural.maharashtra.gov.in/"
+      }
+    ],
+    "coverageNote": "Includes all 28 States and 8 Union Territories of India (36/36 first-level administrative divisions), all 36 Districts of Maharashtra plus representative regional districts across all other States and Union Territories, all 12 Subdistricts/Talukas of Kolhapur District plus key regional talukas, and documented cities, towns, and craft/heritage villages. Additional subdistricts and villages can be imported via pnpm run db:import-geography or added in the Admin Panel."
+  },
+  "unionTerritoriesAndExtraStates": [
+    {
+      "id": "loc-state-arunachal-pradesh",
+      "level": "STATE",
+      "nameEn": "Arunachal Pradesh",
+      "nameMr": "अरुणाचल प्रदेश",
+      "abbr": "AR",
+      "parentId": "loc-country-in",
+      "centerLat": 28.218,
+      "centerLng": 94.7278,
+      "defaultZoom": 7
+    },
+    {
+      "id": "loc-state-haryana",
+      "level": "STATE",
+      "nameEn": "Haryana",
+      "nameMr": "हरियाणा",
+      "abbr": "HR",
+      "parentId": "loc-country-in",
+      "centerLat": 29.0588,
+      "centerLng": 76.0856,
+      "defaultZoom": 7
+    },
+    {
+      "id": "loc-state-delhi",
+      "level": "STATE",
+      "nameEn": "Delhi (NCT)",
+      "nameMr": "दिल्ली",
+      "abbr": "DL",
+      "parentId": "loc-country-in",
+      "centerLat": 28.6139,
+      "centerLng": 77.209,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-state-andaman-and-nicobar-islands",
+      "level": "STATE",
+      "nameEn": "Andaman and Nicobar Islands",
+      "nameMr": "अंदमान आणि निकोबार बेटे",
+      "abbr": "AN",
+      "parentId": "loc-country-in",
+      "centerLat": 11.7401,
+      "centerLng": 92.6586,
+      "defaultZoom": 7
+    },
+    {
+      "id": "loc-state-chandigarh",
+      "level": "STATE",
+      "nameEn": "Chandigarh",
+      "nameMr": "चंदीगड",
+      "abbr": "CH",
+      "parentId": "loc-country-in",
+      "centerLat": 30.7333,
+      "centerLng": 76.7794,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-state-dadra-and-nagar-haveli-and-daman-and-diu",
+      "level": "STATE",
+      "nameEn": "Dadra and Nagar Haveli and Daman and Diu",
+      "nameMr": "दादरा आणि नगर हवेली आणि दमण आणि दीव",
+      "abbr": "DD",
+      "parentId": "loc-country-in",
+      "centerLat": 20.3974,
+      "centerLng": 72.8328,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-state-lakshadweep",
+      "level": "STATE",
+      "nameEn": "Lakshadweep",
+      "nameMr": "लक्षद्वीप",
+      "abbr": "LD",
+      "parentId": "loc-country-in",
+      "centerLat": 10.5667,
+      "centerLng": 72.6417,
+      "defaultZoom": 8
+    },
+    {
+      "id": "loc-state-puducherry",
+      "level": "STATE",
+      "nameEn": "Puducherry",
+      "nameMr": "पुदुच्चेरी",
+      "abbr": "PY",
+      "parentId": "loc-country-in",
+      "centerLat": 11.9416,
+      "centerLng": 79.8083,
+      "defaultZoom": 10
+    }
+  ],
+  "maharashtraDistricts": [
+    {
+      "id": "loc-district-nashik-district",
+      "level": "DISTRICT",
+      "nameEn": "Nashik District",
+      "nameMr": "नाशिक जिल्हा",
+      "abbr": "NSK",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.9975,
+      "centerLng": 73.7898,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-chhatrapati-sambhajinagar-district",
+      "level": "DISTRICT",
+      "nameEn": "Chhatrapati Sambhajinagar District",
+      "nameMr": "छत्रपती संभाजीनगर जिल्हा",
+      "abbr": "CSN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.8762,
+      "centerLng": 75.3433,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-nagpur-district",
+      "level": "DISTRICT",
+      "nameEn": "Nagpur District",
+      "nameMr": "नागपूर जिल्हा",
+      "abbr": "NGP",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 21.1458,
+      "centerLng": 79.0882,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-satara-district",
+      "level": "DISTRICT",
+      "nameEn": "Satara District",
+      "nameMr": "सातारा जिल्हा",
+      "abbr": "SAT",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 17.6805,
+      "centerLng": 74.0183,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-sangli-district",
+      "level": "DISTRICT",
+      "nameEn": "Sangli District",
+      "nameMr": "सांगली जिल्हा",
+      "abbr": "SAN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 16.8524,
+      "centerLng": 74.5815,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-solapur-district",
+      "level": "DISTRICT",
+      "nameEn": "Solapur District",
+      "nameMr": "सोलापूर जिल्हा",
+      "abbr": "SOL",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 17.6599,
+      "centerLng": 75.9064,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-ratnagiri-district",
+      "level": "DISTRICT",
+      "nameEn": "Ratnagiri District",
+      "nameMr": "रत्नागिरी जिल्हा",
+      "abbr": "RAT",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 16.9902,
+      "centerLng": 73.312,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-sindhudurg-district",
+      "level": "DISTRICT",
+      "nameEn": "Sindhudurg District",
+      "nameMr": "सिंधुदुर्ग जिल्हा",
+      "abbr": "SIN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 16.3492,
+      "centerLng": 73.5594,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-thane-district",
+      "level": "DISTRICT",
+      "nameEn": "Thane District",
+      "nameMr": "ठाणे जिल्हा",
+      "abbr": "THA",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.2183,
+      "centerLng": 72.9781,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-raigad-district",
+      "level": "DISTRICT",
+      "nameEn": "Raigad District",
+      "nameMr": "रायगड जिल्हा",
+      "abbr": "RAI",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 18.5158,
+      "centerLng": 73.1822,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-palghar-district",
+      "level": "DISTRICT",
+      "nameEn": "Palghar District",
+      "nameMr": "पालघर जिल्हा",
+      "abbr": "PAL",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.6967,
+      "centerLng": 72.7699,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-dhule-district",
+      "level": "DISTRICT",
+      "nameEn": "Dhule District",
+      "nameMr": "धुळे जिल्हा",
+      "abbr": "DHU",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.9042,
+      "centerLng": 74.7749,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-nandurbar-district",
+      "level": "DISTRICT",
+      "nameEn": "Nandurbar District",
+      "nameMr": "नंदुरबार जिल्हा",
+      "abbr": "NAN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 21.3735,
+      "centerLng": 74.2419,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-jalgaon-district",
+      "level": "DISTRICT",
+      "nameEn": "Jalgaon District",
+      "nameMr": "जळगाव जिल्हा",
+      "abbr": "JAL",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 21.0077,
+      "centerLng": 75.5626,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-ahilyanagar-district",
+      "level": "DISTRICT",
+      "nameEn": "Ahilyanagar District",
+      "nameMr": "अहिल्यानगर जिल्हा",
+      "abbr": "AHI",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.0948,
+      "centerLng": 74.748,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-nanded-district",
+      "level": "DISTRICT",
+      "nameEn": "Nanded District",
+      "nameMr": "नांदेड जिल्हा",
+      "abbr": "NND",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.1383,
+      "centerLng": 77.321,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-latur-district",
+      "level": "DISTRICT",
+      "nameEn": "Latur District",
+      "nameMr": "लातूर जिल्हा",
+      "abbr": "LAT",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 18.4088,
+      "centerLng": 76.5604,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-dharashiv-district",
+      "level": "DISTRICT",
+      "nameEn": "Dharashiv District",
+      "nameMr": "धाराशिव जिल्हा",
+      "abbr": "DHA",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 18.186,
+      "centerLng": 76.0419,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-beed-district",
+      "level": "DISTRICT",
+      "nameEn": "Beed District",
+      "nameMr": "बीड जिल्हा",
+      "abbr": "BEE",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 18.9891,
+      "centerLng": 75.7601,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-parbhani-district",
+      "level": "DISTRICT",
+      "nameEn": "Parbhani District",
+      "nameMr": "परभणी जिल्हा",
+      "abbr": "PAR",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.2608,
+      "centerLng": 76.7748,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-jalna-district",
+      "level": "DISTRICT",
+      "nameEn": "Jalna District",
+      "nameMr": "जालना जिल्हा",
+      "abbr": "JLN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.8347,
+      "centerLng": 75.8816,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-hingoli-district",
+      "level": "DISTRICT",
+      "nameEn": "Hingoli District",
+      "nameMr": "हिंगोली जिल्हा",
+      "abbr": "HIN",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.7173,
+      "centerLng": 77.1494,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-amravati-district",
+      "level": "DISTRICT",
+      "nameEn": "Amravati District",
+      "nameMr": "अमरावती जिल्हा",
+      "abbr": "AMR",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.932,
+      "centerLng": 77.7523,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-akola-district",
+      "level": "DISTRICT",
+      "nameEn": "Akola District",
+      "nameMr": "अकोला जिल्हा",
+      "abbr": "AKO",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.7002,
+      "centerLng": 77.0082,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-buldhana-district",
+      "level": "DISTRICT",
+      "nameEn": "Buldhana District",
+      "nameMr": "बुलढाणा जिल्हा",
+      "abbr": "BUL",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.5292,
+      "centerLng": 76.1842,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-yavatmal-district",
+      "level": "DISTRICT",
+      "nameEn": "Yavatmal District",
+      "nameMr": "यवतमाळ जिल्हा",
+      "abbr": "YAV",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.3888,
+      "centerLng": 78.1204,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-washim-district",
+      "level": "DISTRICT",
+      "nameEn": "Washim District",
+      "nameMr": "वाशिम जिल्हा",
+      "abbr": "WAS",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.1119,
+      "centerLng": 77.1313,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-wardha-district",
+      "level": "DISTRICT",
+      "nameEn": "Wardha District",
+      "nameMr": "वर्धा जिल्हा",
+      "abbr": "WAR",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.7453,
+      "centerLng": 78.6022,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-bhandara-district",
+      "level": "DISTRICT",
+      "nameEn": "Bhandara District",
+      "nameMr": "भंडारा जिल्हा",
+      "abbr": "BHA",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 21.1702,
+      "centerLng": 79.6552,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-gondia-district",
+      "level": "DISTRICT",
+      "nameEn": "Gondia District",
+      "nameMr": "गोंदिया जिल्हा",
+      "abbr": "GON",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 21.4624,
+      "centerLng": 80.221,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-chandrapur-district",
+      "level": "DISTRICT",
+      "nameEn": "Chandrapur District",
+      "nameMr": "चंद्रपूर जिल्हा",
+      "abbr": "CHA",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.9615,
+      "centerLng": 79.2961,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-gadchiroli-district",
+      "level": "DISTRICT",
+      "nameEn": "Gadchiroli District",
+      "nameMr": "गडचिरोली जिल्हा",
+      "abbr": "GAD",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 20.1849,
+      "centerLng": 80.003,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-mumbai-suburban-district",
+      "level": "DISTRICT",
+      "nameEn": "Mumbai Suburban District",
+      "nameMr": "मुंबई उपनगर जिल्हा",
+      "abbr": "MSB",
+      "parentId": "loc-state-maharashtra",
+      "centerLat": 19.1136,
+      "centerLng": 72.8697,
+      "defaultZoom": 10
+    }
+  ],
+  "nationalExtraDistricts": [
+    {
+      "id": "loc-district-papum-pare-district",
+      "level": "DISTRICT",
+      "nameEn": "Papum Pare District",
+      "nameMr": "पापम पारे जिल्हा",
+      "abbr": "PPR",
+      "parentId": "loc-state-arunachal-pradesh",
+      "centerLat": 27.0844,
+      "centerLng": 93.6053,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-tawang-district",
+      "level": "DISTRICT",
+      "nameEn": "Tawang District",
+      "nameMr": "तवांग जिल्हा",
+      "abbr": "TWG",
+      "parentId": "loc-state-arunachal-pradesh",
+      "centerLat": 27.5861,
+      "centerLng": 91.8594,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-kurukshetra-district",
+      "level": "DISTRICT",
+      "nameEn": "Kurukshetra District",
+      "nameMr": "कुरुक्षेत्र जिल्हा",
+      "abbr": "KRK",
+      "parentId": "loc-state-haryana",
+      "centerLat": 29.9695,
+      "centerLng": 76.8783,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-gurugram-district",
+      "level": "DISTRICT",
+      "nameEn": "Gurugram District",
+      "nameMr": "गुरुग्राम जिल्हा",
+      "abbr": "GGM",
+      "parentId": "loc-state-haryana",
+      "centerLat": 28.4595,
+      "centerLng": 77.0266,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-district-new-delhi-district",
+      "level": "DISTRICT",
+      "nameEn": "New Delhi District",
+      "nameMr": "नवी दिल्ली जिल्हा",
+      "abbr": "NDL",
+      "parentId": "loc-state-delhi",
+      "centerLat": 28.6139,
+      "centerLng": 77.209,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-district-port-blair-district",
+      "level": "DISTRICT",
+      "nameEn": "South Andaman District",
+      "nameMr": "दक्षिण अंदमान जिल्हा",
+      "abbr": "SAN",
+      "parentId": "loc-state-andaman-and-nicobar-islands",
+      "centerLat": 11.6234,
+      "centerLng": 92.7265,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-chandigarh-district",
+      "level": "DISTRICT",
+      "nameEn": "Chandigarh District",
+      "nameMr": "चंदीगड जिल्हा",
+      "abbr": "CHD",
+      "parentId": "loc-state-chandigarh",
+      "centerLat": 30.7333,
+      "centerLng": 76.7794,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-district-daman-district",
+      "level": "DISTRICT",
+      "nameEn": "Daman District",
+      "nameMr": "दमण जिल्हा",
+      "abbr": "DAM",
+      "parentId": "loc-state-dadra-and-nagar-haveli-and-daman-and-diu",
+      "centerLat": 20.3974,
+      "centerLng": 72.8328,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-district-silvassa-district",
+      "level": "DISTRICT",
+      "nameEn": "Dadra and Nagar Haveli District",
+      "nameMr": "दादरा आणि नगर हवेली जिल्हा",
+      "abbr": "DNH",
+      "parentId": "loc-state-dadra-and-nagar-haveli-and-daman-and-diu",
+      "centerLat": 20.2763,
+      "centerLng": 73.0083,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-district-jammu-district",
+      "level": "DISTRICT",
+      "nameEn": "Jammu District",
+      "nameMr": "जम्मू जिल्हा",
+      "abbr": "JAM",
+      "parentId": "loc-state-jammu-kashmir",
+      "centerLat": 32.7266,
+      "centerLng": 74.857,
+      "defaultZoom": 10
+    },
+    {
+      "id": "loc-district-kargil-district",
+      "level": "DISTRICT",
+      "nameEn": "Kargil District",
+      "nameMr": "कारगिल जिल्हा",
+      "abbr": "KAR",
+      "parentId": "loc-state-ladakh",
+      "centerLat": 34.5539,
+      "centerLng": 76.1349,
+      "defaultZoom": 8
+    },
+    {
+      "id": "loc-district-lakshadweep-district",
+      "level": "DISTRICT",
+      "nameEn": "Lakshadweep District",
+      "nameMr": "लक्षद्वीप जिल्हा",
+      "abbr": "LKD",
+      "parentId": "loc-state-lakshadweep",
+      "centerLat": 10.5667,
+      "centerLng": 72.6417,
+      "defaultZoom": 9
+    },
+    {
+      "id": "loc-district-puducherry-district",
+      "level": "DISTRICT",
+      "nameEn": "Puducherry District",
+      "nameMr": "पुदुच्चेरी जिल्हा",
+      "abbr": "PUD",
+      "parentId": "loc-state-puducherry",
+      "centerLat": 11.9416,
+      "centerLng": 79.8083,
+      "defaultZoom": 10
+    }
+  ],
+  "subdistrictsAndTalukas": [
+    {
+      "id": "loc-taluka-karveer",
+      "level": "TALUKA",
+      "nameEn": "Karveer Taluka",
+      "nameMr": "करवीर तालुका",
+      "abbr": "KRV",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.705,
+      "centerLng": 74.2433,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-panhala",
+      "level": "TALUKA",
+      "nameEn": "Panhala Taluka",
+      "nameMr": "पन्हाळा तालुका",
+      "abbr": "PNH",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.8115,
+      "centerLng": 74.1078,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-hatkanangale",
+      "level": "TALUKA",
+      "nameEn": "Hatkanangale Taluka",
+      "nameMr": "हातकणंगले तालुका",
+      "abbr": "HTK",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.7445,
+      "centerLng": 74.4467,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-shirol",
+      "level": "TALUKA",
+      "nameEn": "Shirol Taluka",
+      "nameMr": "शिरोळ तालुका",
+      "abbr": "SHR",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.7347,
+      "centerLng": 74.6025,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-kagal",
+      "level": "TALUKA",
+      "nameEn": "Kagal Taluka",
+      "nameMr": "कागल तालुका",
+      "abbr": "KGL",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.5772,
+      "centerLng": 74.3158,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-gadhinglaj",
+      "level": "TALUKA",
+      "nameEn": "Gadhinglaj Taluka",
+      "nameMr": "गडहिंग्लज तालुका",
+      "abbr": "GDH",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.2289,
+      "centerLng": 74.3503,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-chandgad",
+      "level": "TALUKA",
+      "nameEn": "Chandgad Taluka",
+      "nameMr": "चंदगड तालुका",
+      "abbr": "CHD",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 15.945,
+      "centerLng": 74.181,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-ajara",
+      "level": "TALUKA",
+      "nameEn": "Ajara Taluka",
+      "nameMr": "आजरा तालुका",
+      "abbr": "AJR",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.118,
+      "centerLng": 74.21,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-bhudargad",
+      "level": "TALUKA",
+      "nameEn": "Bhudargad Taluka",
+      "nameMr": "भुदरगड तालुका",
+      "abbr": "BHD",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.2415,
+      "centerLng": 74.139,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-radhanagari",
+      "level": "TALUKA",
+      "nameEn": "Radhanagari Taluka",
+      "nameMr": "राधानगरी तालुका",
+      "abbr": "RDN",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.412,
+      "centerLng": 73.994,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-shahuwadi",
+      "level": "TALUKA",
+      "nameEn": "Shahuwadi Taluka",
+      "nameMr": "शाहूवाडी तालुका",
+      "abbr": "SHW",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.911,
+      "centerLng": 73.947,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-gaganbawada",
+      "level": "TALUKA",
+      "nameEn": "Gaganbawada Taluka",
+      "nameMr": "गगनबावडा तालुका",
+      "abbr": "GGB",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.544,
+      "centerLng": 73.835,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-haveli",
+      "level": "TALUKA",
+      "nameEn": "Haveli Taluka",
+      "nameMr": "हवेली तालुका",
+      "abbr": "HVL",
+      "parentId": "loc-district-pune-district",
+      "centerLat": 18.5204,
+      "centerLng": 73.8567,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-paithan",
+      "level": "TALUKA",
+      "nameEn": "Paithan Taluka",
+      "nameMr": "पैठण तालुका",
+      "abbr": "PTN",
+      "parentId": "loc-district-chhatrapati-sambhajinagar-district",
+      "centerLat": 19.4765,
+      "centerLng": 75.3856,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-yeola",
+      "level": "TALUKA",
+      "nameEn": "Yeola Taluka",
+      "nameMr": "येवला तालुका",
+      "abbr": "YVL",
+      "parentId": "loc-district-nashik-district",
+      "centerLat": 20.045,
+      "centerLng": 74.489,
+      "defaultZoom": 11
+    },
+    {
+      "id": "loc-taluka-sawantwadi",
+      "level": "TALUKA",
+      "nameEn": "Sawantwadi Taluka",
+      "nameMr": "सावंतवाडी तालुका",
+      "abbr": "SWD",
+      "parentId": "loc-district-sindhudurg-district",
+      "centerLat": 15.9056,
+      "centerLng": 73.8213,
+      "defaultZoom": 11
+    }
+  ],
+  "extraTownsAndVillages": [
+    {
+      "id": "loc-village-hupari",
+      "level": "VILLAGE",
+      "nameEn": "Hupari",
+      "nameMr": "हुपरी",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.6203,
+      "centerLng": 74.405,
+      "defaultZoom": 13
+    },
+    {
+      "id": "loc-village-kapashi",
+      "level": "VILLAGE",
+      "nameEn": "Kapashi",
+      "nameMr": "कापशी",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.369,
+      "centerLng": 74.316,
+      "defaultZoom": 13
+    },
+    {
+      "id": "loc-village-pattankodoli",
+      "level": "VILLAGE",
+      "nameEn": "Pattankodoli",
+      "nameMr": "पट्टणकोडोली",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.681,
+      "centerLng": 74.382,
+      "defaultZoom": 13
+    },
+    {
+      "id": "loc-city-gadhinglaj",
+      "level": "CITY_TOWN",
+      "nameEn": "Gadhinglaj",
+      "nameMr": "गडहिंग्लज",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.2289,
+      "centerLng": 74.3503,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-jaysingpur",
+      "level": "CITY_TOWN",
+      "nameEn": "Jaysingpur",
+      "nameMr": "जयसिंगपूर",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.778,
+      "centerLng": 74.556,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-kurundwad",
+      "level": "CITY_TOWN",
+      "nameEn": "Kurundwad",
+      "nameMr": "कुरुंदवाड",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.685,
+      "centerLng": 74.596,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-murgud",
+      "level": "CITY_TOWN",
+      "nameEn": "Murgud",
+      "nameMr": "मुरगूड",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.398,
+      "centerLng": 74.201,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-village-narsobawadi",
+      "level": "VILLAGE",
+      "nameEn": "Narsobawadi",
+      "nameMr": "नरसोबाची वाडी",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.699,
+      "centerLng": 74.602,
+      "defaultZoom": 13
+    },
+    {
+      "id": "loc-village-dajipur",
+      "level": "VILLAGE",
+      "nameEn": "Dajipur",
+      "nameMr": "दाजीपूर",
+      "parentId": "loc-district-kolhapur-district",
+      "centerLat": 16.376,
+      "centerLng": 73.864,
+      "defaultZoom": 13
+    },
+    {
+      "id": "loc-city-itanagar",
+      "level": "CITY_TOWN",
+      "nameEn": "Itanagar",
+      "nameMr": "इटानगर",
+      "parentId": "loc-district-papum-pare-district",
+      "centerLat": 27.0844,
+      "centerLng": 93.6053,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-tawang",
+      "level": "CITY_TOWN",
+      "nameEn": "Tawang",
+      "nameMr": "तवांग",
+      "parentId": "loc-district-tawang-district",
+      "centerLat": 27.5861,
+      "centerLng": 91.8594,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-kurukshetra",
+      "level": "CITY_TOWN",
+      "nameEn": "Kurukshetra",
+      "nameMr": "कुरुक्षेत्र",
+      "parentId": "loc-district-kurukshetra-district",
+      "centerLat": 29.9695,
+      "centerLng": 76.8783,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-gurugram",
+      "level": "CITY_TOWN",
+      "nameEn": "Gurugram",
+      "nameMr": "गुरुग्राम",
+      "parentId": "loc-district-gurugram-district",
+      "centerLat": 28.4595,
+      "centerLng": 77.0266,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-new-delhi",
+      "level": "CITY_TOWN",
+      "nameEn": "New Delhi",
+      "nameMr": "नवी दिल्ली",
+      "parentId": "loc-district-new-delhi-district",
+      "centerLat": 28.6139,
+      "centerLng": 77.209,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-port-blair",
+      "level": "CITY_TOWN",
+      "nameEn": "Sri Vijaya Puram (Port Blair)",
+      "nameMr": "श्री विजय पुरम (पोर्ट ब्लेअर)",
+      "parentId": "loc-district-port-blair-district",
+      "centerLat": 11.6234,
+      "centerLng": 92.7265,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-chandigarh",
+      "level": "CITY_TOWN",
+      "nameEn": "Chandigarh",
+      "nameMr": "चंदीगड",
+      "parentId": "loc-district-chandigarh-district",
+      "centerLat": 30.7333,
+      "centerLng": 76.7794,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-daman",
+      "level": "CITY_TOWN",
+      "nameEn": "Daman",
+      "nameMr": "दमण",
+      "parentId": "loc-district-daman-district",
+      "centerLat": 20.3974,
+      "centerLng": 72.8328,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-silvassa",
+      "level": "CITY_TOWN",
+      "nameEn": "Silvassa",
+      "nameMr": "सिल्वासा",
+      "parentId": "loc-district-silvassa-district",
+      "centerLat": 20.2763,
+      "centerLng": 73.0083,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-kavaratti",
+      "level": "CITY_TOWN",
+      "nameEn": "Kavaratti",
+      "nameMr": "कवरत्ती",
+      "parentId": "loc-district-lakshadweep-district",
+      "centerLat": 10.5667,
+      "centerLng": 72.6417,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-puducherry",
+      "level": "CITY_TOWN",
+      "nameEn": "Puducherry",
+      "nameMr": "पुदुच्चेरी",
+      "parentId": "loc-district-puducherry-district",
+      "centerLat": 11.9416,
+      "centerLng": 79.8083,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-satara",
+      "level": "CITY_TOWN",
+      "nameEn": "Satara",
+      "nameMr": "सातारा",
+      "parentId": "loc-district-satara-district",
+      "centerLat": 17.6805,
+      "centerLng": 74.0183,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-sangli",
+      "level": "CITY_TOWN",
+      "nameEn": "Sangli",
+      "nameMr": "सांगली",
+      "parentId": "loc-district-sangli-district",
+      "centerLat": 16.8524,
+      "centerLng": 74.5815,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-solapur",
+      "level": "CITY_TOWN",
+      "nameEn": "Solapur",
+      "nameMr": "सोलापूर",
+      "parentId": "loc-district-solapur-district",
+      "centerLat": 17.6599,
+      "centerLng": 75.9064,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-ratnagiri",
+      "level": "CITY_TOWN",
+      "nameEn": "Ratnagiri",
+      "nameMr": "रत्नागिरी",
+      "parentId": "loc-district-ratnagiri-district",
+      "centerLat": 16.9902,
+      "centerLng": 73.312,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-sawantwadi",
+      "level": "CITY_TOWN",
+      "nameEn": "Sawantwadi",
+      "nameMr": "सावंतवाडी",
+      "parentId": "loc-district-sindhudurg-district",
+      "centerLat": 15.9056,
+      "centerLng": 73.8213,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-nashik",
+      "level": "CITY_TOWN",
+      "nameEn": "Nashik",
+      "nameMr": "नाशिक",
+      "parentId": "loc-district-nashik-district",
+      "centerLat": 19.9975,
+      "centerLng": 73.7898,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-paithan",
+      "level": "CITY_TOWN",
+      "nameEn": "Paithan",
+      "nameMr": "पैठण",
+      "parentId": "loc-district-chhatrapati-sambhajinagar-district",
+      "centerLat": 19.4765,
+      "centerLng": 75.3856,
+      "defaultZoom": 12
+    },
+    {
+      "id": "loc-city-nagpur",
+      "level": "CITY_TOWN",
+      "nameEn": "Nagpur",
+      "nameMr": "नागपूर",
+      "parentId": "loc-district-nagpur-district",
+      "centerLat": 21.1458,
+      "centerLng": 79.0882,
+      "defaultZoom": 12
+    }
+  ]
+}
