@@ -1760,6 +1760,7 @@ test("Final Full-Stack Regression Suite (Tasks 1 & 2 + Milestone 1)", async (t) 
 
       const superAdminUpgrade = await api(`/api/v1/admin/users/${buyerUserId}`, {
         method: "PATCH",
+        token: superAdminToken,
         body: { role: "LANGUAGE_REVIEWER" },
       });
       assert.equal(superAdminUpgrade.status, 200);
@@ -1768,6 +1769,7 @@ test("Final Full-Stack Regression Suite (Tasks 1 & 2 + Milestone 1)", async (t) 
       // Downgrade back to PUBLIC_USER
       const superAdminDowngrade = await api(`/api/v1/admin/users/${buyerUserId}`, {
         method: "PATCH",
+        token: superAdminToken,
         body: { role: "PUBLIC_USER" },
       });
       assert.equal(superAdminDowngrade.status, 200);
@@ -1919,6 +1921,7 @@ test("Final Full-Stack Regression Suite (Tasks 1 & 2 + Milestone 1)", async (t) 
       // 6. Staff reviewer can approve and publish the HerCraft enterprise
       const adminApprove = await api(`/api/v1/hercraft/enterprises/${createdId}`, {
         method: "PATCH",
+        token: superAdminToken,
         body: {
           approvalStatus: "APPROVED",
           publicationStatus: "PUBLISHED",

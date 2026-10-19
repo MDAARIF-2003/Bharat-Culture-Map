@@ -94,6 +94,14 @@ export function getSessionSecret(): string {
   );
 }
 
+export function assertProductionAuthConfiguration(): void {
+  if (process.env.NODE_ENV === "production") {
+    getSessionSecret();
+  }
+}
+
+
+
 /**
  * Determines whether demo-account quick-login and public demo credentials are enabled.
  * - In production (`NODE_ENV === "production"`): DISABLED by default unless `ENABLE_DEMO_ACCOUNTS === "true"`.

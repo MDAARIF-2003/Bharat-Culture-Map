@@ -7305,13 +7305,12 @@ export class ModularCultureMapRepository implements CultureMapRepository {
         ) {
           return false;
         }
-        if (
-          filter?.districtName &&
-          filter.districtName !== "All" &&
-          (e.districtName || "").toLowerCase() !==
-            filter.districtName.toLowerCase()
-        ) {
-          return false;
+        if (filter?.districtName && filter.districtName !== "All") {
+          const reqDist = filter.districtName.toLowerCase().replace(/\s+district$/i, "").trim();
+          const entDist = (e.districtName || "").toLowerCase().replace(/\s+district$/i, "").trim();
+          if (!entDist.includes(reqDist) && !reqDist.includes(entDist)) {
+            return false;
+          }
         }
         if (
           filter?.traditionSlug &&
