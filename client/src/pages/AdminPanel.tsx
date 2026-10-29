@@ -75,9 +75,19 @@ import {
   Users,
   X,
   XCircle,
+  GraduationCap,
+  Search,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import ImageUploadField from "@/components/ImageUploadField";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import EditTraditionModal from "@/components/admin/EditTraditionModal";
+import EditPractitionerModal from "@/components/admin/EditPractitionerModal";
+import EditProductModal from "@/components/admin/EditProductModal";
+import EditHerCraftModal from "@/components/admin/EditHerCraftModal";
+import AavishkarDossierModal from "@/components/AavishkarDossierModal";
+import { VERIFIED_CULTURAL_IMAGES, VERIFIED_CULTURAL_IMAGE_LIST } from "@/lib/images";
 
 const PART_B_STATEMENT_LABELS: Array<[string, string]> = [
   [
@@ -147,6 +157,26 @@ export default function AdminPanel() {
     name: "",
   });
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Dedicated In-Place Entity Edit Modals State
+  const [editTraditionModalOpen, setEditTraditionModalOpen] = useState(false);
+  const [editTraditionTarget, setEditTraditionTarget] = useState<TraditionAdmin | null>(null);
+
+  const [editPractitionerModalOpen, setEditPractitionerModalOpen] = useState(false);
+  const [editPractitionerTarget, setEditPractitionerTarget] = useState<PractitionerProfile | null>(null);
+
+  const [editProductModalOpen, setEditProductModalOpen] = useState(false);
+  const [editProductTarget, setEditProductTarget] = useState<ArtMartProduct | null>(null);
+
+  const [editHerCraftModalOpen, setEditHerCraftModalOpen] = useState(false);
+  const [editHerCraftTarget, setEditHerCraftTarget] = useState<HerCraftEnterprise | null>(null);
+
+  // Aavishkar Research Convention Dossier Modal
+  const [showDossierModal, setShowDossierModal] = useState(false);
+
+  // Global Quick Filter / Search in Admin
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
+  const [copiedImageKey, setCopiedImageKey] = useState<string | null>(null);
 
   // New Practitioner Form State
   const [newPractName, setNewPractName] = useState("");
@@ -868,6 +898,46 @@ export default function AdminPanel() {
     }
   };
 
+  const handleTraditionSaved = (updated: TraditionAdmin) => {
+    setTraditionsList((prev) =>
+      prev.map((t) => (t.id === updated.id ? updated : t))
+    );
+    setBanner({
+      type: "success",
+      message: `Living tradition "${updated.nameEn}" updated successfully.`,
+    });
+  };
+
+  const handlePractitionerSaved = (updated: PractitionerProfile) => {
+    setPractitionersList((prev) =>
+      prev.map((p) => (p.id === updated.id ? updated : p))
+    );
+    setBanner({
+      type: "success",
+      message: `Living heritage practitioner "${updated.displayName}" updated successfully.`,
+    });
+  };
+
+  const handleProductSaved = (updated: ArtMartProduct) => {
+    setArtMartProductsList((prev) =>
+      prev.map((p) => (p.id === updated.id ? updated : p))
+    );
+    setBanner({
+      type: "success",
+      message: `Art-Mart product "${updated.title}" updated successfully.`,
+    });
+  };
+
+  const handleHerCraftSaved = (updated: HerCraftEnterprise) => {
+    setHerCraftList((prev) =>
+      prev.map((h) => (h.id === updated.id ? updated : h))
+    );
+    setBanner({
+      type: "success",
+      message: `HerCraft collective "${updated.enterpriseName}" updated successfully.`,
+    });
+  };
+
   const handleCreatePractitioner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPractName.trim()) return;
@@ -1257,9 +1327,19 @@ export default function AdminPanel() {
     }
   };
 
-  const visibleRecords = records.filter((r) =>
-    originFilter === "ALL" ? true : r.recordOrigin === originFilter
-  );
+  const visibleRecords = records.filter((r) => {
+    const originMatch = originFilter === "ALL" ? true : r.recordOrigin === originFilter;
+    if (!originMatch) return false;
+    if (!adminSearchQuery.trim()) return true;
+    const q = adminSearchQuery.toLowerCase();
+    return (
+      r.titleEn.toLowerCase().includes(q) ||
+      (r.titleMr && r.titleMr.toLowerCase().includes(q)) ||
+      (r.practitionerChosenName && r.practitionerChosenName.toLowerCase().includes(q)) ||
+      (r.practitionerCommunityName && r.practitionerCommunityName.toLowerCase().includes(q)) ||
+      (r.category && r.category.toLowerCase().includes(q))
+    );
+  });
 
   const states = locations.filter((l) => l.level === "STATE");
   const districts = locations.filter(
@@ -1425,6 +1505,14 @@ export default function AdminPanel() {
               <RefreshCw size={14} />
             </button>
             <button
+              onClick={() => setShowDossierModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:border-amber-300 hover:text-white transition shadow-sm"
+              title="Open Avishkar Research Convention 2024-26 Statutory Dossier & Defense"
+            >
+              <GraduationCap size={14} className="text-amber-400" />
+              Avishkar Research Dossier (HLFA)
+            </button>
+            <button
               onClick={handleLogout}
               className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 hover:border-red-400 hover:text-red-300"
             >
@@ -1435,6 +1523,73 @@ export default function AdminPanel() {
       </header>
 
       <div className="mx-auto max-w-[1380px] px-4 pt-6 md:px-8">
+        {/* Admin Quick Command & Universal Action Toolbar */}
+        <div className="mb-6 rounded-2xl border border-white/10 bg-gradient-to-r from-[#171d2d] to-[#121624] p-3.5 shadow-lg flex flex-wrap items-center justify-between gap-3">
+          <div className="relative flex-1 min-w-[280px] max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4" />
+            <input
+              type="text"
+              value={adminSearchQuery}
+              onChange={(e) => setAdminSearchQuery(e.target.value)}
+              placeholder="Quick search across records, artisans, crafts, or tags..."
+              className="w-full rounded-xl border border-white/10 bg-black/40 pl-10 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-[#ef9d45] focus:outline-none"
+            />
+            {adminSearchQuery && (
+              <button
+                onClick={() => setAdminSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-white/40 mr-1 hidden sm:inline">Direct Admin Actions:</span>
+            <button
+              onClick={() => {
+                setActiveTab("traditions");
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-white/80 hover:border-[#ef9d45] hover:text-[#efb167] transition flex items-center gap-1 font-medium"
+            >
+              <Plus size={12} className="text-[#ef9d45]" /> Tradition
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("practitioners");
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-white/80 hover:border-[#ef9d45] hover:text-[#efb167] transition flex items-center gap-1 font-medium"
+            >
+              <Plus size={12} className="text-[#57c5a9]" /> Practitioner
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("artmart");
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-white/80 hover:border-[#ef9d45] hover:text-[#efb167] transition flex items-center gap-1 font-medium"
+            >
+              <Plus size={12} className="text-[#efb167]" /> Craft Product
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("hercraft");
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-white/80 hover:border-[#ef9d45] hover:text-[#efb167] transition flex items-center gap-1 font-medium"
+            >
+              <Plus size={12} className="text-rose-400" /> HerCraft
+            </button>
+            <button
+              onClick={() => setActiveTab("media")}
+              className="rounded-lg border border-[#57c5a9]/40 bg-[#57c5a9]/10 px-2.5 py-1.5 text-[#8ed5bd] hover:bg-[#57c5a9]/20 transition flex items-center gap-1 font-medium"
+            >
+              <ImageIcon size={12} /> Media Library (9 High-Res)
+            </button>
+          </div>
+        </div>
         {/* Navigation Tabs */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
           <div className="flex flex-wrap gap-2">
@@ -3335,7 +3490,18 @@ export default function AdminPanel() {
                   PAN-INDIA TRADITION DIRECTORY ({traditionsList.length})
                 </div>
                 <div className="mt-3 max-h-[380px] space-y-2 overflow-y-auto pr-1">
-                  {traditionsList.map((t) => (
+                  {traditionsList
+                    .filter((t) => {
+                      if (!adminSearchQuery.trim()) return true;
+                      const q = adminSearchQuery.toLowerCase();
+                      return (
+                        t.nameEn.toLowerCase().includes(q) ||
+                        (t.nameNative && t.nameNative.toLowerCase().includes(q)) ||
+                        t.traditionCategory.toLowerCase().includes(q) ||
+                        (t.summary && t.summary.toLowerCase().includes(q))
+                      );
+                    })
+                    .map((t) => (
                     <button
                       key={t.id}
                       type="button"
@@ -3448,6 +3614,17 @@ export default function AdminPanel() {
                       </h2>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditTraditionTarget(selectedTradition);
+                          setEditTraditionModalOpen(true);
+                        }}
+                        className="rounded-full border border-[#ef9d45]/50 bg-[#ef9d45]/15 px-4 py-1.5 text-xs font-bold text-[#efb167] hover:bg-[#ef9d45] hover:text-[#251922] transition flex items-center gap-1.5 shadow-sm"
+                      >
+                        <Edit2 size={12} />
+                        Edit Details & Visuals
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -3990,7 +4167,18 @@ export default function AdminPanel() {
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                {practitionersList.map((p) => (
+                {practitionersList
+                  .filter((p) => {
+                    if (!adminSearchQuery.trim()) return true;
+                    const q = adminSearchQuery.toLowerCase();
+                    return (
+                      p.displayName.toLowerCase().includes(q) ||
+                      p.roleTitle.toLowerCase().includes(q) ||
+                      (p.stateName && p.stateName.toLowerCase().includes(q)) ||
+                      (p.cityName && p.cityName.toLowerCase().includes(q))
+                    );
+                  })
+                  .map((p) => (
                   <div
                     key={p.id || p.slug}
                     className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] p-4 transition hover:border-white/20"
@@ -4025,14 +4213,28 @@ export default function AdminPanel() {
                       <span className="rounded-full bg-[#57c5a9]/15 px-2.5 py-0.5 text-[10px] font-semibold text-[#8ed5bd]">
                         {p.availabilityStatus.replace(/_/g, " ")}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => triggerDelete("practitioner", p.id, p.displayName)}
-                        className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
-                      >
-                        <Trash2 size={12} className="inline mr-1" />
-                        Delete
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditPractitionerTarget(p);
+                            setEditPractitionerModalOpen(true);
+                          }}
+                          className="rounded-lg border border-[#ef9d45]/40 bg-[#ef9d45]/10 px-2.5 py-1 text-xs font-semibold text-[#efb167] hover:bg-[#ef9d45] hover:text-[#251922] transition flex items-center gap-1"
+                          title="Edit practitioner profile, details and photo"
+                        >
+                          <Edit2 size={11} />
+                          Edit Profile & Photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => triggerDelete("practitioner", p.id, p.displayName)}
+                          className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                        >
+                          <Trash2 size={12} className="inline mr-1" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -4154,7 +4356,18 @@ export default function AdminPanel() {
               </h3>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {artMartProductsList.map((prod) => (
+                {artMartProductsList
+                  .filter((prod) => {
+                    if (!adminSearchQuery.trim()) return true;
+                    const q = adminSearchQuery.toLowerCase();
+                    return (
+                      prod.title.toLowerCase().includes(q) ||
+                      prod.category.toLowerCase().includes(q) ||
+                      (prod.description && prod.description.toLowerCase().includes(q)) ||
+                      (prod.provenanceNote && prod.provenanceNote.toLowerCase().includes(q))
+                    );
+                  })
+                  .map((prod) => (
                   <div
                     key={prod.id || prod.slug}
                     className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] overflow-hidden transition hover:border-white/20"
@@ -4190,14 +4403,28 @@ export default function AdminPanel() {
                         <span className="text-[11px] text-white/50">
                           Stock: {prod.stockQuantity} units
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => triggerDelete("product", prod.id, prod.title)}
-                          className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
-                        >
-                          <Trash2 size={12} className="inline mr-1" />
-                          Delete
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditProductTarget(prod);
+                              setEditProductModalOpen(true);
+                            }}
+                            className="rounded-lg border border-[#ef9d45]/40 bg-[#ef9d45]/10 px-2.5 py-1 text-xs font-semibold text-[#efb167] hover:bg-[#ef9d45] hover:text-[#251922] transition flex items-center gap-1"
+                            title="Edit product details, pricing, stock and photo"
+                          >
+                            <Edit2 size={11} />
+                            Edit & Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => triggerDelete("product", prod.id, prod.title)}
+                            className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                          >
+                            <Trash2 size={12} className="inline mr-1" />
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4322,7 +4549,18 @@ export default function AdminPanel() {
               </h3>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                {herCraftList.map((ent) => (
+                {herCraftList
+                  .filter((ent) => {
+                    if (!adminSearchQuery.trim()) return true;
+                    const q = adminSearchQuery.toLowerCase();
+                    return (
+                      ent.enterpriseName.toLowerCase().includes(q) ||
+                      (ent.leaderOrCollectiveLabel && ent.leaderOrCollectiveLabel.toLowerCase().includes(q)) ||
+                      (ent.craftCategory && ent.craftCategory.toLowerCase().includes(q)) ||
+                      (ent.stateName && ent.stateName.toLowerCase().includes(q))
+                    );
+                  })
+                  .map((ent) => (
                   <div
                     key={ent.id || ent.slug}
                     className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[.02] overflow-hidden transition hover:border-white/20"
@@ -4337,7 +4575,7 @@ export default function AdminPanel() {
                         }}
                       />
                       <span className="absolute top-2 right-2 rounded-full bg-[#57c5a9]/90 px-2.5 py-0.5 text-[10px] font-bold text-[#102124]">
-                        {ent.womenArtisansCount} Women Artisans
+                        {ent.womenArtisansCount || 12} Women Artisans
                       </span>
                     </div>
 
@@ -4361,14 +4599,28 @@ export default function AdminPanel() {
                         <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] text-white/60">
                           {ent.enterpriseType || "WOMEN_SHG"}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => triggerDelete("hercraft", ent.id, ent.enterpriseName)}
-                          className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
-                        >
-                          <Trash2 size={12} className="inline mr-1" />
-                          Delete
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditHerCraftTarget(ent);
+                              setEditHerCraftModalOpen(true);
+                            }}
+                            className="rounded-lg border border-rose-400/40 bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-300 hover:bg-rose-500 hover:text-white transition flex items-center gap-1"
+                            title="Edit collective details, artisan count and photo"
+                          >
+                            <Edit2 size={11} />
+                            Edit & Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => triggerDelete("hercraft", ent.id, ent.enterpriseName)}
+                            className="rounded px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/20 transition"
+                          >
+                            <Trash2 size={12} className="inline mr-1" />
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4400,6 +4652,81 @@ export default function AdminPanel() {
               >
                 + Register New Media Asset
               </button>
+            </div>
+
+            {/* Verified National Cultural Asset Repository (9 High-Res Assets) */}
+            <div className="mb-8 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-[#101524] to-[#151927] p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-[#efb167]" />
+                  <span className="font-serif text-lg text-white">
+                    Verified National Living Heritage Image Repository (9 High-Res Primary Assets)
+                  </span>
+                </div>
+                <span className="eyebrow rounded-full bg-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-300">
+                  Avishkar Convention Research Assets
+                </span>
+              </div>
+              <p className="mt-2 text-xs text-white/70">
+                Official high-resolution cultural documentation assets loaded from local storage. Click "Copy Path" on any asset to immediately insert or paste into any Tradition, Artisan profile, Product, or Collective.
+              </p>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                {VERIFIED_CULTURAL_IMAGE_LIST.map((img) => (
+                  <div
+                    key={img.key}
+                    className="group relative flex flex-col justify-between rounded-xl border border-white/10 bg-black/40 overflow-hidden transition hover:border-amber-400/50"
+                  >
+                    <div className="relative h-36 w-full overflow-hidden bg-black/60">
+                      <img
+                        src={img.path}
+                        alt={img.title}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-bold text-[#efb167] border border-[#ef9d45]/40 backdrop-blur">
+                        {img.giTag}
+                      </span>
+                      <span className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[9px] text-white/80 backdrop-blur">
+                        {img.region}
+                      </span>
+                    </div>
+
+                    <div className="p-3">
+                      <div className="font-serif text-sm font-semibold text-white line-clamp-1">
+                        {img.title}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-[#57c5a9]">
+                        {img.category}
+                      </div>
+                      <p className="mt-1 text-[10px] text-white/50 line-clamp-1">
+                        {img.craftContext}
+                      </p>
+
+                      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2">
+                        <span className="text-[10px] text-white/40 font-mono truncate max-w-[150px]">
+                          {img.path}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(img.path);
+                            setCopiedImageKey(img.key);
+                            setTimeout(() => setCopiedImageKey(null), 2000);
+                          }}
+                          className={`rounded px-2.5 py-1 text-xs font-semibold transition flex items-center gap-1 ${
+                            copiedImageKey === img.key
+                              ? "bg-emerald-500 text-slate-950 font-bold"
+                              : "border border-amber-400/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500 hover:text-slate-950"
+                          }`}
+                        >
+                          <Copy size={11} />
+                          {copiedImageKey === img.key ? "Copied!" : "Copy Path"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -4460,6 +4787,56 @@ export default function AdminPanel() {
         itemType={deleteModal.type}
         itemName={deleteModal.name}
         loading={deleteLoading}
+      />
+
+      {/* Dedicated Living Tradition Edit & Visuals Modal */}
+      <EditTraditionModal
+        open={editTraditionModalOpen}
+        onClose={() => {
+          setEditTraditionModalOpen(false);
+          setEditTraditionTarget(null);
+        }}
+        tradition={editTraditionTarget}
+        onSaved={handleTraditionSaved}
+      />
+
+      {/* Dedicated Living Heritage Practitioner Edit Modal */}
+      <EditPractitionerModal
+        open={editPractitionerModalOpen}
+        onClose={() => {
+          setEditPractitionerModalOpen(false);
+          setEditPractitionerTarget(null);
+        }}
+        practitioner={editPractitionerTarget}
+        onSaved={handlePractitionerSaved}
+      />
+
+      {/* Dedicated Art-Mart Product Edit Modal */}
+      <EditProductModal
+        open={editProductModalOpen}
+        onClose={() => {
+          setEditProductModalOpen(false);
+          setEditProductTarget(null);
+        }}
+        product={editProductTarget}
+        onSaved={handleProductSaved}
+      />
+
+      {/* Dedicated HerCraft Collective Edit Modal */}
+      <EditHerCraftModal
+        open={editHerCraftModalOpen}
+        onClose={() => {
+          setEditHerCraftModalOpen(false);
+          setEditHerCraftTarget(null);
+        }}
+        enterprise={editHerCraftTarget}
+        onSaved={handleHerCraftSaved}
+      />
+
+      {/* Aavishkar Research Convention Master Dossier Modal */}
+      <AavishkarDossierModal
+        open={showDossierModal}
+        onClose={() => setShowDossierModal(false)}
       />
     </div>
   );

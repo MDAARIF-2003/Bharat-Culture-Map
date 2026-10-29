@@ -18,9 +18,11 @@ import {
   UserCheck,
   Users,
   X,
+  GraduationCap,
 } from "lucide-react";
 import { apiClient, DemoAccountInfo } from "@/lib/api";
 import type { AccountPersonaType, UserAccount } from "@shared/contracts";
+import AavishkarDossierModal from "@/components/AavishkarDossierModal";
 
 export const DEMO_ENVIRONMENT_BANNER_TEXT =
   "DEMONSTRATION ENVIRONMENT — Sample profiles, products, transactions and workflow records are illustrative and are not claims about real people, organisations, events or completed transactions.";
@@ -31,6 +33,7 @@ export default function SiteHeader() {
   const [ecosystemDropdownOpen, setEcosystemDropdownOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"demo" | "login" | "register">("demo");
+  const [dossierOpen, setDossierOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [demoAccounts, setDemoAccounts] = useState<DemoAccountInfo[]>([]);
@@ -389,6 +392,16 @@ export default function SiteHeader() {
           <div className="hidden lg:flex items-center gap-2">
             <button
               type="button"
+              onClick={() => setDossierOpen(true)}
+              className="px-3 py-1.5 rounded-md text-xs font-semibold border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 hover:text-white hover:border-amber-300 transition-colors flex items-center gap-1.5 shadow-sm"
+              title="Open Avishkar 2024-26 Research Convention Dossier & Jury Defense"
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+              Avishkar Research Dossier (HLFA)
+            </button>
+
+            <button
+              type="button"
               onClick={() => navigateTo("/admin")}
               className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors flex items-center gap-1.5 ${
                 isActive("/admin")
@@ -536,21 +549,34 @@ export default function SiteHeader() {
                 <Landmark className="w-4 h-4 text-sky-400" /> Gov & Partners
               </button>
             </div>
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+            <div className="pt-2 border-t border-slate-800 space-y-2">
               <button
                 type="button"
-                onClick={() => navigateTo("/admin")}
-                className="flex-1 py-2 px-3 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setDossierOpen(true);
+                }}
+                className="w-full py-2.5 px-3 rounded-lg border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5"
               >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Admin Governance Studio
+                <GraduationCap className="w-4 h-4 text-amber-400" />
+                Avishkar Research Dossier & Jury Defense (HLFA)
               </button>
-              <button
-                type="button"
-                onClick={() => navigateTo("/places/loc-district-kolhapur-district")}
-                className="flex-1 py-2 px-3 rounded-lg bg-slate-800 text-amber-300 text-xs font-medium flex items-center justify-center gap-1.5"
-              >
-                <MapPin className="w-4 h-4" /> Kolhapur Hub
-              </button>
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/admin")}
+                  className="flex-1 py-2 px-3 rounded-lg bg-slate-800 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> Admin Studio
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("/places/loc-district-kolhapur-district")}
+                  className="flex-1 py-2 px-3 rounded-lg bg-slate-800 text-amber-300 text-xs font-medium flex items-center justify-center gap-1.5"
+                >
+                  <MapPin className="w-4 h-4" /> Kolhapur Hub
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -802,6 +828,12 @@ export default function SiteHeader() {
           </div>
         </div>
       )}
+
+      {/* Avishkar Research Convention Dossier Modal */}
+      <AavishkarDossierModal
+        open={dossierOpen}
+        onClose={() => setDossierOpen(false)}
+      />
     </>
   );
 }
